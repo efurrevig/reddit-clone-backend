@@ -17,7 +17,7 @@ class CommunitiesController < ApplicationController
     def create
         @community = Community.create(community_params)
 
-        if @community.save!
+        if @community.save
             render json: {
                 status: {
                     code: 200,
@@ -31,7 +31,7 @@ class CommunitiesController < ApplicationController
                     code: 422,
                     message: @community.errors.messages
                 }
-            }
+            }, status: 422
         end
     end
 

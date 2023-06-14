@@ -2,9 +2,8 @@ require 'faker'
 require 'factory_bot_rails'
 
 module ApiHelpers
-    def authenticated_header(request, user)
-        auth_headers = Devise::JWT::TestHelpers.auth_headers({}, user)
-        request.headers.merge!(auth_headers)
+    def authenticated_header(user)
+        Devise::JWT::TestHelpers.auth_headers({}, user)
     end
 
     def login_with_api(user)
