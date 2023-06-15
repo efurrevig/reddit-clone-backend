@@ -23,7 +23,7 @@ RSpec.describe CommunitiesController, type: :request do
 
       context 'when authenticated' do
         let(:auth_header) {authenticated_header(user)}
-        let(:initial_count) { 0 }
+        let!(:initial_count) { Community.count }
 
         context 'with valid parameters' do
           let(:community) { build(:community) }
@@ -51,7 +51,6 @@ RSpec.describe CommunitiesController, type: :request do
   
         context 'with invalid parameters' do
           before do
-            initial_count = Community.count 
             post request_url, params: {
               community: {
                 name: ''
