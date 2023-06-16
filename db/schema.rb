@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_06_14_235358) do
+ActiveRecord::Schema[7.0].define(version: 2023_06_16_210300) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -34,6 +34,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_14_235358) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["community_id"], name: "index_subscribers_on_community_id"
+    t.index ["user_id", "community_id"], name: "index_subscribers_on_user_id_and_community_id", unique: true
     t.index ["user_id"], name: "index_subscribers_on_user_id"
   end
 
