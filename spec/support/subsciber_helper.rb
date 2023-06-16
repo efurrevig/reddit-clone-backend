@@ -11,4 +11,9 @@ module SubscriberHelper
         }, headers: auth_header
     end
 
+    def unsubscribe_to_community(subscriber, community, auth_header)
+        delete "/api/communities/#{community.id}/subscribers/#{subscriber.id}",
+            headers: auth_header
+    end
+
 end

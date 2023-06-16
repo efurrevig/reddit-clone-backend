@@ -110,4 +110,51 @@ RSpec.describe SubscribersController, type: :request do
 
     end
 
+    context 'when unsubscribing from a community' do
+        let(:user) { create(:user) }
+        let(:community) { create(:community) }
+        let!(:subscriber) { create(:subscriber, community: community, user: user) }
+
+        context 'when the user is logged in' do
+            let(:auth_header) { authenticated_header(user) }
+            let!(:initial_count) { Subscriber.count }
+
+            before do
+                unsubscribe_to_community(subscriber, community, auth_header)
+            end
+
+            it 'should return status 204' do
+                expect(response.status).to eq(202)
+            end
+
+            it 'should return the correct message' do
+                expect(JSON.parse(response.body)['status']['message']).to eq('has successfully unsubscribed')
+            end
+
+            it 'should remove a subscriber from the db' do
+                expect(Subscriber.count).to eq(initial_count - 1)
+            end
+
+            it 'should remove the correct subscriber' do
+                expect(Subscriber.exists?(subscriber.id)).to be false
+            end
+        end
+
+        context 'when the user is not logged in' do
+            let!(:initial_count) { Subscriber.count }
+
+            before do
+                delete "/api/communities/#{community.id}/subscribers/#{subscriber.id}"
+            end
+
+            it 'should return status 401' do
+                expect(response.status).to eq(401)
+            end
+
+            it 'should not delete a subscriber' do
+                expect(Subscriber.count).to eq(initial_count)
+            end
+        end
+    end
+
 end
