@@ -16,4 +16,12 @@ module SubscriberHelper
             headers: auth_header
     end
 
+    def change_sub_status(status, sub_to_change, community, auth_header)
+        request_url = "/api/communities/#{community.id}/subscribers/#{sub_to_change.id}"
+        patch request_url, params: {
+            subscriber: {
+                status: :moderator
+            }
+        }, headers: auth_header
+    end
 end

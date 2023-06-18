@@ -157,4 +157,99 @@ RSpec.describe SubscribersController, type: :request do
         end
     end
 
+    context 'when changing a users status' do
+        let(:user_to_change) { create(:user) }
+        let(:community) { create(:community) }
+        let(:sub_to_change) { create(:subscriber, user: user_to_change, community: community) }
+        let(:admin) { create(:user) }
+        let!(:admin_sub) { create(:subscriber, user: admin, community: community, status: :admin) }
+
+        # context 'when the requesting user is an admin' do
+        #     let(:auth_header) { authenticated_header(admin) }
+
+        #     before do
+        #         change_sub_status(:moderator, sub_to_change, community, auth_header)
+        #     end
+
+        #     it 'should return status 204' do
+        #         expect(response.status).to be(204)
+        #     end
+
+        #     it 'should edit the subscriber' do
+        #         expect(Subscriber.exists?(id: sub_to_change.id, status: :moderator)).to be true
+        #     end
+        # end
+
+        context 'when the requesting user is not an admin' do
+            let(:mod) { create(:user) }
+            let!(:mod_sub) { create(:subscriber, user: mod, community: community, status: :moderator) }
+            let(:approved) { create(:user) }
+            let!(:app_sub) { create(:subscriber, user: approved, community: community, status: :approved)}
+            let(:member) { create(:user) }
+            let!(:mem_sub) { create(:subscriber, user: member, community: community, status: :member) }
+            let(:non_sub) { create(:user) }
+
+            context 'when user is a mod' do
+                let!(:auth_header) { authenticated_header(mod) }
+                before do
+                    change_sub_status(:moderator, sub_to_change, community, auth_header)
+                end
+
+                it 'should return status 422' do
+                    expect(response.status).to be(422)
+                end
+
+                it 'should not change the sub' do
+                    expect(Subscriber.exists?(id: sub_to_change.id, status: :moderator)).to be false
+                end
+            end
+
+            context 'when user is approved' do
+                let!(:auth_header) { authenticated_header(approved) }
+                before do
+                    change_sub_status(:moderator, sub_to_change, community, auth_header)
+                end
+
+                it 'should return status 422' do
+                    expect(response.status).to be(422)
+                end
+
+                it 'should not change the sub' do
+                    expect(Subscriber.exists?(id: sub_to_change.id, status: :moderator)).to be false
+                end
+            end
+
+            context 'when user is a member' do
+                let!(:auth_header) { authenticated_header(member) }
+                before do
+                    change_sub_status(:moderator, sub_to_change, community, auth_header)
+                end
+
+                it 'should return status 422' do
+                    expect(response.status).to be(422)
+                end
+
+                it 'should not change the sub' do
+                    expect(Subscriber.exists?(id: sub_to_change.id, status: :moderator)).to be false
+                end
+            end
+
+            context 'when user is not subbed' do
+                let!(:auth_header) { authenticated_header(non_sub) }
+                before do
+                    change_sub_status(:moderator, sub_to_change, community, auth_header)
+                end
+
+                it 'should return status 422' do
+                    expect(response.status).to be(422)
+                end
+
+                it 'should not change the sub' do
+                    expect(Subscriber.exists?(id: sub_to_change.id, status: :moderator)).to be false
+                end
+            end
+        end
+
+    end
+
 end
