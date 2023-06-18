@@ -20,7 +20,7 @@ module SubscriberHelper
         request_url = "/api/communities/#{community.id}/subscribers/#{sub_to_change.id}"
         patch request_url, params: {
             subscriber: {
-                status: :moderator
+                status: status
             }
         }, headers: auth_header
     end

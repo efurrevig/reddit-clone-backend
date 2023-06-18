@@ -36,7 +36,7 @@ class SubscribersController < ApplicationController
     end
 
     def update
-        if @subscriber.update(status_params)
+        if @subscriber.update(status: status_params[:status].to_i)
             render json: {
                 status: {
                     code: 204,
@@ -91,7 +91,7 @@ class SubscribersController < ApplicationController
 
     def community_admin?
         subscriber = Subscriber.find_by(user_id: current_user.id, community_id: params[:community_id])
-        head 422 if !(subscriber.present? && subscriber.status == :admin)
+        head 422 if !(subscriber.present? && subscriber.status.to_sym == :admin)
     end
 
     def community_moderator?
