@@ -52,8 +52,7 @@ RSpec.describe PostsController, type: :request do
             end
 
             it 'the response should include the users\'s posts' do
-                #maybe map over resposne.body and check for each post to have user_id: user.id
-                expect(JSON.parse(response.body)['data'][0]).to have_key('title')
+                expect(JSON.parse(response.body)['data'].map { |post| post['user_id'] }).to all(be(user.id))
             end
 
         end
@@ -65,6 +64,92 @@ RSpec.describe PostsController, type: :request do
 
             it 'should return status 204' do
                 expect(response.status).to be (204)
+            end
+        end
+    end
+
+    describe 'GET #show' do
+
+        context 'when the post exists' do
+            let(:post) { create(:post) }
+            let(:request_url) { "/api/communities/#{post.community.id}/posts/#{post.id}"}
+            before do
+                get request_url
+            end
+
+            it 'should return status 200' do
+                expect(response.status).to be(200)
+            end
+
+            it 'the response should include the post' do
+                expect(JSON.parse(response.body)['data']['title']).to eq(post.title)
+            end
+        end
+
+        context 'when the post does not exist' do
+            let(:community) { create(:community) }
+            let(:request_url) { "/api/communities/#{community.id}/posts/1"}
+            before do
+                get request_url
+            end
+
+            it 'should return status 404' do
+                expect(response.status).to be (404)
+            end
+        end
+
+    end
+
+    describe 'POST #create' do
+
+        context 'when the user is signed in' do
+            let(:user) { create(:user) }
+
+            context 'when the post is valid' do
+                let(:community) { create(:community) }
+                let(:new_post) { build(:post) }
+
+                before do
+                    create_post_api(community, new_post, user)
+                end
+
+                it 'it should return status 201' do
+                    expect(response.status).to be(201)
+                end
+
+                it 'it should return the post' do
+                    expect(JSON.parse(response.body)['data']['title']).to eq(new_post.title)
+                end
+            end
+
+            context 'when the post is invalid' do
+                let(:community) { create(:community) }
+                let(:new_post) { build(:post, title: nil) }
+
+                before do
+                    create_post_api(community, new_post, user)
+                end
+
+                it 'it should return status 422' do
+                    expect(response.status).to be(422)
+                end
+
+                it 'it should return the posts errors' do
+                    expect(JSON.parse(response.body)['status']['message']).to include("Please fill out all required fields")
+                end
+            end
+        end
+
+        context 'when the user is not signed in' do
+            let(:community) { create(:community) }
+            let(:new_post) { build(:post) }
+
+            before do
+                create_post_api(community, new_post, nil)
+            end
+
+            it 'it should return status 401' do
+                expect(response.status).to be(401)
             end
         end
     end
