@@ -13,8 +13,10 @@ Rails.application.routes.draw do
   }
   
   scope '/api' do
+    get '/users/:user_id/posts', to: 'posts#user_posts'
     resources :communities do
       resources :subscribers
+      resources :posts
     end
   end
 

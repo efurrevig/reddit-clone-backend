@@ -6,4 +6,5 @@ class User < ApplicationRecord
 
   has_many :subscriptions, foreign_key: :user_id, class_name: 'Subscriber'
   has_many :communities, through: :subscriptions
+  has_many :posts
 end

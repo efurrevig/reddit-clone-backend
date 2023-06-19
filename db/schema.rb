@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_06_16_210300) do
+ActiveRecord::Schema[7.0].define(version: 2023_06_19_185447) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -25,6 +25,20 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_16_210300) do
     t.string "jti", null: false
     t.datetime "exp", null: false
     t.index ["jti"], name: "index_jwt_denylist_on_jti"
+  end
+
+  create_table "posts", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "community_id", null: false
+    t.integer "post_type", default: 0, null: false
+    t.string "title", null: false
+    t.text "body"
+    t.string "media_url"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "deleted", default: false
+    t.index ["community_id"], name: "index_posts_on_community_id"
+    t.index ["user_id"], name: "index_posts_on_user_id"
   end
 
   create_table "subscribers", force: :cascade do |t|
@@ -54,6 +68,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_16_210300) do
     t.index ["username"], name: "index_users_on_username", unique: true
   end
 
+  add_foreign_key "posts", "communities"
+  add_foreign_key "posts", "users"
   add_foreign_key "subscribers", "communities"
   add_foreign_key "subscribers", "users"
 end
