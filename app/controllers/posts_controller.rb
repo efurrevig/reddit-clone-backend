@@ -1,6 +1,6 @@
 class PostsController < ApplicationController
-    before_action :authenticate_user!, only: [:create, :edit, :destroy]
-    before_action :verify_owner, only: [:edit, :destroy]
+    before_action :authenticate_user!, only: [:create, :update, :destroy]
+    before_action :verify_owner, only: [:update, :destroy]
     #GET /api/communities/:community_id/posts
     def index
         @community = Community.find(params[:community_id])
@@ -86,7 +86,33 @@ class PostsController < ApplicationController
     end
 
     #PATCH/PUT /api/communities/:community_id/posts/:id
-    def edit
+    def update
+        post = Post.find(params[:id])
+        post.update!(edit_post_params)
+        render json: {
+            status: {
+                code: 200
+            },
+            data: post
+        }, status: 200
+
+    rescue ActiveRecord::RecordInvalid
+        render json: {
+            status: {
+                code: 422,
+                message: post.errors.full_messages
+            }
+        }, status: 422
+    rescue ActiveRecord::NotNullViolation
+        render json: {
+            status: {
+                code: 422,
+                message: "Please fill out all required fields"
+            }
+        }, status: 422
+
+    rescue ActiveRecord::RecordNotFound
+        head 404
 
     end
 
@@ -105,6 +131,10 @@ class PostsController < ApplicationController
 
     def post_params
         params.require(:post).permit(:title, :body, :post_type, :media_url, :user_id)
+    end
+
+    def edit_post_params
+        params.require(:post).permit(:title, :body, :post_type, :media_url)
     end
 
     def verify_owner

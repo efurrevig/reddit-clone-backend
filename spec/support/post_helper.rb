@@ -26,4 +26,17 @@ module PostHelper
             }
         }, headers: user ? authenticated_header(user) : nil
     end
+
+    def edit_post_api(community, original_post, edited_post, user)
+        request_url = "/api/communities/#{community.id}/posts/#{original_post.id}"
+        patch request_url, params: {
+            post: {
+                title: edited_post.title,
+                body: edited_post.body,
+                post_type: edited_post.post_type,
+                media_url: edited_post.media_url,
+            }
+        }, headers: user ? authenticated_header(user) : nil
+    end
+
 end
