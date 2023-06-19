@@ -154,4 +154,62 @@ RSpec.describe PostsController, type: :request do
         end
     end
 
+    describe 'DELETE #destroy' do
+        context 'when the user is signed in' do
+            let(:user) { create(:user) }
+
+            context 'when the user is the owner of the post' do
+                let(:post) { create(:post, user: user) }
+                let(:request_url) { "/api/communities/#{post.community.id}/posts/#{post.id}"}
+
+                before do
+                    delete request_url, headers: authenticated_header(user)
+                end
+
+                it 'should return status 204' do
+                    expect(response.status).to be(204)
+                end
+            end
+
+            context 'when the user is not the owner of the post' do
+                let(:post) { create(:post) }
+                let(:request_url) { "/api/communities/#{post.community.id}/posts/#{post.id}"}
+
+                before do
+                    delete request_url, headers: authenticated_header(user)
+                end
+
+                it 'should return status 403' do
+                    expect(response.status).to be(403)
+                end
+            end
+
+            context 'when the post does not exist' do
+                let(:community) { create(:community) }
+                let(:request_url) { "/api/communities/#{community.id}/posts/1"}
+
+                before do
+                    delete request_url, headers: authenticated_header(user)
+                end
+
+                it 'should return status 404' do
+                    expect(response.status).to be(404)
+                end
+            end
+        end
+
+        context 'when the user is not signed in' do
+            let(:post) { create(:post) }
+            let(:request_url) { "/api/communities/#{post.community.id}/posts/#{post.id}"}
+
+            before do
+                delete request_url, headers: nil
+            end
+
+            it 'should return status 401' do
+                expect(response.status).to be(401)
+            end
+        end
+    end
+
 end

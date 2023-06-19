@@ -1,5 +1,6 @@
 class PostsController < ApplicationController
     before_action :authenticate_user!, only: [:create, :edit, :destroy]
+    before_action :verify_owner, only: [:edit, :destroy]
     #GET /api/communities/:community_id/posts
     def index
         @community = Community.find(params[:community_id])
@@ -66,20 +67,20 @@ class PostsController < ApplicationController
             },
             data: post
         }, status: 201
-        rescue ActiveRecord::RecordInvalid
-            render json: {
-                status: {
-                    code: 422,
-                    message: post.errors.full_messages
-                }
-            }, status: 422
-        rescue ActiveRecord::NotNullViolation
-            render json: {
-                status: {
-                    code: 422,
-                    message: "Please fill out all required fields"
-                }
-            }, status: 422
+    rescue ActiveRecord::RecordInvalid
+        render json: {
+            status: {
+                code: 422,
+                message: post.errors.full_messages
+            }
+        }, status: 422
+    rescue ActiveRecord::NotNullViolation
+        render json: {
+            status: {
+                code: 422,
+                message: "Please fill out all required fields"
+            }
+        }, status: 422
 
 
     end
@@ -91,6 +92,12 @@ class PostsController < ApplicationController
 
     #DELETE /api/communities/:community_id/posts/:id
     def destroy
+        post = Post.find(params[:id])
+        post.destroy!
+        head 204
+
+    rescue ActiveRecord::RecordNotFound
+        head 404
 
     end
 
@@ -98,5 +105,12 @@ class PostsController < ApplicationController
 
     def post_params
         params.require(:post).permit(:title, :body, :post_type, :media_url, :user_id)
+    end
+
+    def verify_owner
+        post = Post.find(params[:id])
+        head :forbidden unless post.user_id == current_user.id
+    rescue ActiveRecord::RecordNotFound
+        head 404
     end
 end
