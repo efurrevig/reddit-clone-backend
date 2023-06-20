@@ -117,6 +117,7 @@ class PostsController < ApplicationController
     end
 
     #DELETE /api/communities/:community_id/posts/:id
+    #THIS NEEDS TO BE CHANGED TO NOT DELETE POST, INSTEAD CHANGE is_deleted?
     def destroy
         post = Post.find(params[:id])
         post.destroy!
