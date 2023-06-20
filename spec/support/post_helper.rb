@@ -22,7 +22,7 @@ module PostHelper
                 body: new_post.body,
                 post_type: new_post.post_type,
                 media_url: new_post.media_url,
-                user_id: if user then user.id else nil end
+                user_id: user ? user.id : nil
             }
         }, headers: user ? authenticated_header(user) : nil
     end

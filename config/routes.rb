@@ -19,7 +19,8 @@ Rails.application.routes.draw do
       resources :posts
     end
 
-    get '/posts/:post_id/comments', to: 'comments#index'
+    post '/posts/:post_id/comments', to: 'comments#create'
+
   end
 
 

@@ -43,7 +43,7 @@ class PostsController < ApplicationController
 
     #GET /api/communities/:community_id/posts/:id
     def show
-        post = Post.find(params[:id])
+        post = Post.includes(comments: [:user, :child_comments]).find(params[:id])
         render json: {
             status: {
                 code: 200

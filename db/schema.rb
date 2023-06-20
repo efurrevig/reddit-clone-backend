@@ -10,20 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_06_20_170614) do
+ActiveRecord::Schema[7.0].define(version: 2023_06_20_174212) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "comments", force: :cascade do |t|
-    t.bigint "users_id", null: false
-    t.bigint "posts_id", null: false
+    t.bigint "user_id", null: false
+    t.bigint "post_id", null: false
     t.integer "parent_comment_id"
     t.text "body", null: false
     t.boolean "is_deleted?", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["posts_id"], name: "index_comments_on_posts_id"
-    t.index ["users_id"], name: "index_comments_on_users_id"
+    t.index ["post_id"], name: "index_comments_on_post_id"
+    t.index ["user_id"], name: "index_comments_on_user_id"
   end
 
   create_table "communities", force: :cascade do |t|
@@ -80,8 +80,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_20_170614) do
     t.index ["username"], name: "index_users_on_username", unique: true
   end
 
-  add_foreign_key "comments", "posts", column: "posts_id"
-  add_foreign_key "comments", "users", column: "users_id"
+  add_foreign_key "comments", "posts"
+  add_foreign_key "comments", "users"
   add_foreign_key "posts", "communities"
   add_foreign_key "posts", "users"
   add_foreign_key "subscribers", "communities"

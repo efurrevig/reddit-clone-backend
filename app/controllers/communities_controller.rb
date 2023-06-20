@@ -1,6 +1,6 @@
 class CommunitiesController < ApplicationController
     before_action :authenticate_user!, only: [:create, :destroy]
-
+    # status: public, private, hidden
     def index
         @communities = Community.all
         render json: {
