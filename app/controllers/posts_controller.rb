@@ -120,8 +120,7 @@ class PostsController < ApplicationController
     #THIS NEEDS TO BE CHANGED TO NOT DELETE POST, INSTEAD CHANGE is_deleted?
     def destroy
         post = Post.find(params[:id])
-        post.destroy!
-        head 204
+        post.update!(is_deleted?: true)
 
     rescue ActiveRecord::RecordNotFound
         head 404

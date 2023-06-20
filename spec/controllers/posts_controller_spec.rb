@@ -169,6 +169,11 @@ RSpec.describe PostsController, type: :request do
                 it 'should return status 204' do
                     expect(response.status).to be(204)
                 end
+
+                it 'should change is_deleted to true' do
+                    expect(Post.find(post.id).is_deleted?).to be(true)
+                end
+                
             end
 
             context 'when the user is not the owner of the post' do
@@ -181,6 +186,10 @@ RSpec.describe PostsController, type: :request do
 
                 it 'should return status 403' do
                     expect(response.status).to be(403)
+                end
+
+                it 'should not change is_deleted? to true' do
+                    expect(Post.find(post.id).is_deleted?).to be(false)
                 end
             end
 
