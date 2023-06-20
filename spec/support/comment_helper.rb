@@ -21,4 +21,13 @@ module CommentHelper
         }, headers: user ? authenticated_header(user) : nil
     end
 
+    def update_comment_api(comment, updated_body, user)
+        request_url = "/api/comments/#{comment.id}"
+        patch request_url, params: {
+            comment: {
+                body: updated_body
+            }
+        }, headers: user ? authenticated_header(user) : nil
+    end
+
 end

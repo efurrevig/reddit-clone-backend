@@ -97,4 +97,110 @@ RSpec.describe CommentsController, type: :request do
         end
     end
 
+    describe 'PUT #update' do
+        let(:user) { create(:user) }
+        let(:community) { create(:community) }
+        let(:post_) { create(:post, user: user, community: community) }
+        let(:comment) { create(:comment, user: user, post: post_) }
+        let(:body) { 'This is an updated comment' }
+        
+        context 'when the comment exists' do
+            context 'when the request is valid' do
+                before do
+                    update_comment_api(comment, body, user)
+                end
+
+                it 'returns the comment' do
+                    expect(JSON.parse(response.body)['data']['body']).to eq(body)
+                end
+
+                it 'returns status code 200' do
+                    expect(response.status).to be(200)
+                end
+            end
+
+            context 'when the request is invalid' do
+                before do
+                    update_comment_api(comment, nil, user)
+                end
+
+                it 'returns status code 422' do
+                    expect(response).to have_http_status(422)
+                end
+
+                it 'returns a validation failure message' do
+                    expect(JSON.parse(response.body)['errors'][0]).to eq("Body can't be blank")
+                end
+            end
+        end
+
+        context 'when the comment does not exist' do
+            before do
+                patch "/api/comments/999", params: {
+                    comment: {
+                        body: body
+                    }
+                }, headers: authenticated_header(user)
+            end
+
+            it 'returns status code 404' do
+                expect(response).to have_http_status(404)
+            end
+        end
+
+        context 'when the user is not the owner of the comment' do
+            let(:user2) { create(:user) }
+            before do
+                update_comment_api(comment, body, user2)
+            end
+
+            it 'returns status code 403' do
+                expect(response).to have_http_status(403)
+            end
+        end
+
+    end
+
+    describe 'DELETE #destroy' do
+        let(:user) { create(:user) }
+        let(:community) { create(:community) }
+        let(:post_) { create(:post, user: user, community: community) }
+        let(:comment) { create(:comment, user: user, post: post_) }
+
+        context 'when the comment exists' do
+            before do
+                delete "/api/comments/#{comment.id}", headers: authenticated_header(user)
+            end
+
+            it 'returns status code 204' do
+                expect(response).to have_http_status(204)
+            end
+
+            it 'updates the comment' do
+                expect(comment.reload.is_deleted?).to be(true)
+            end
+        end
+
+        context 'when the comment does not exist' do
+            before do
+                delete "/api/comments/999", headers: authenticated_header(user)
+            end
+
+            it 'returns status code 404' do
+                expect(response).to have_http_status(404)
+            end
+        end
+
+        context 'when the user is not the owner of the comment' do
+            let(:user2) { create(:user) }
+            before do
+                delete "/api/comments/#{comment.id}", headers: authenticated_header(user2)
+            end
+
+            it 'returns status code 403' do
+                expect(response).to have_http_status(403)
+            end
+        end
+    end
+
 end
