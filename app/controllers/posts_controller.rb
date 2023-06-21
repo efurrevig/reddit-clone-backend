@@ -43,12 +43,13 @@ class PostsController < ApplicationController
 
     #GET /api/communities/:community_id/posts/:id
     def show
-        post = Post.includes(comments: [:user, :child_comments]).find(params[:id])
+        post = Post.find(params[:id])
+        post_comments = pack_comments(post.comments)
         render json: {
             status: {
                 code: 200
             },
-            data: post
+            data: { post: post, comments: post_comments}
         }
     rescue ActiveRecord::RecordNotFound
         head 404
@@ -117,7 +118,6 @@ class PostsController < ApplicationController
     end
 
     #DELETE /api/communities/:community_id/posts/:id
-    #THIS NEEDS TO BE CHANGED TO NOT DELETE POST, INSTEAD CHANGE is_deleted?
     def destroy
         post = Post.find(params[:id])
         post.update!(is_deleted?: true)
@@ -142,5 +142,22 @@ class PostsController < ApplicationController
         head :forbidden unless post.user_id == current_user.id
     rescue ActiveRecord::RecordNotFound
         head 404
+    end
+
+
+    #generating comment tree, probably not the best way to do it
+    #but it works for now, will refactor later
+    def pack_comments(comments)
+        comments.map do |comment|
+          {
+            id: comment.id,
+            body: comment.body,
+            user_id: comment.user_id,
+            commentable_id: comment.commentable_id,
+            commentable_type: comment.commentable_type,
+            level: 0,
+            comments: pack_comments(comment.comments)
+          }
+        end
     end
 end

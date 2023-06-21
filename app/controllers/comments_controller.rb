@@ -77,7 +77,7 @@ class CommentsController < ApplicationController
 
     def verify_comment_owner
         comment = Comment.find(params[:id])
-        head :forbidden unless comment.user_id == current_user&.id
+        head :forbidden unless comment.user_id == current_user.id
     rescue ActiveRecord::RecordNotFound
         head 404
     end

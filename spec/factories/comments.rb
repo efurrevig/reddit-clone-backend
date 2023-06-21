@@ -1,6 +1,9 @@
 FactoryBot.define do
   factory :comment do
+
+    #need to look at this
     body { Faker::Lorem.paragraph }
+    association :user, factory: :user
 
     factory :comment_of_post do
       association :commentable, factory: :post

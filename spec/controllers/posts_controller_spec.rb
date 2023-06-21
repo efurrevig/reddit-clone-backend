@@ -82,7 +82,7 @@ RSpec.describe PostsController, type: :request do
             end
 
             it 'the response should include the post' do
-                expect(JSON.parse(response.body)['data']['title']).to eq(post.title)
+                expect(JSON.parse(response.body)['data']['post']['title']).to eq(post.title)
             end
         end
 
@@ -95,6 +95,24 @@ RSpec.describe PostsController, type: :request do
 
             it 'should return status 404' do
                 expect(response.status).to be (404)
+            end
+        end
+
+        context 'when the post has comments' do
+            let(:post) { create(:post) }
+            let(:request_url) { "/api/communities/#{post.community.id}/posts/#{post.id}"}
+
+            before do
+                populate_post_with_comments(post, 5)
+                get request_url
+            end
+
+            it 'should return status 200' do
+                expect(response.status).to be(200)
+            end
+
+            it 'the response should include the post\'s comments' do
+                expect(JSON.parse(response.body)['data']['comments'].length).to eq(5)
             end
         end
 
