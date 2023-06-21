@@ -19,9 +19,9 @@ class CommentsController < ApplicationController
 
     #PUT /api/posts/:post_id/comments
     def create
-        post = Post.find(params[:post_id])
-        comment = post.comments.build(comment_params)
-        comment.user_id = current_user.id
+        commentable = params[:comment][:commentable_type].constantize.find(params[:comment][:commentable_id])
+        comment = commentable.comments.build(comment_params)
+       #comment.user_id = current_user.id
         if comment.save
             render json: {
                 status: {
@@ -37,6 +37,8 @@ class CommentsController < ApplicationController
                 errors: comment.errors.full_messages
             }, status: 422
         end
+    rescue ActiveRecord::RecordNotFound
+        head 404
     end
 
     #PATCH /api/comments/:id
@@ -66,7 +68,7 @@ class CommentsController < ApplicationController
 
     private
     def comment_params
-        params.require(:comment).permit(:body, :user_id, :post_id, :parent_comment_id)
+        params.require(:comment).permit(:body, :user_id, :commentable_type, :commentable_id)
     end
 
     def edit_comment_params

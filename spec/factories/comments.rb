@@ -1,9 +1,15 @@
 FactoryBot.define do
   factory :comment do
-    association :user
-    association :post
     body { Faker::Lorem.paragraph }
-    parent_comment_id { nil }
+
+    factory :comment_of_post do
+      association :commentable, factory: :post
+    end
+
+    factory :comment_of_comment do
+      association :commentable, factory: :comment
+    end
+
   end
 end
 

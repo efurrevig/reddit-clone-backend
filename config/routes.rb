@@ -21,6 +21,7 @@ Rails.application.routes.draw do
 
     resources :comments, only: [:update, :destroy]
     post '/posts/:post_id/comments', to: 'comments#create'
+    post '/comments/:comment_id/comments', to: 'comments#create'
 
 
   end

@@ -8,8 +8,8 @@ RSpec.describe CommentsController, type: :request do
         let(:post_) { create(:post, user: user, community: community) }
 
         context 'when it is a top-level comment' do
-            let(:comment) { build(:comment, user: user, post: post_) }
-            let(:invalid_comment) { build(:comment, user: user, post: post_, body: nil)}
+            let(:comment) { build(:comment_of_post, user: user, commentable: post_) }
+            let(:invalid_comment) { build(:comment_of_post, user: user, commentable: post_, body: nil)}
             context 'when the request is valid' do
                 before do
                     create_comment_api(post_, comment, user)
@@ -44,17 +44,17 @@ RSpec.describe CommentsController, type: :request do
         end
 
         context 'when it is a child comment' do
-            let(:parent_comment) { create(:comment, user: user, post: post_) }
-            let(:comment) { build(:comment, user: user, post: post_, parent_comment_id: parent_comment.id) }
-            let(:invalid_comment) { build(:comment, user: user, post: post_, parent_comment_id: parent_comment.id, body: nil)}
+            let(:parent_comment) { create(:comment_of_post, user: user, commentable: post_) }
+            let(:comment) { build(:comment_of_comment, user: user, commentable: parent_comment ) }
+            let(:invalid_comment) { build(:comment_of_comment, user: user, commentable: parent_comment, body: nil)}
 
             context 'when the request is valid' do
                 before do
-                    create_comment_api(post_, comment, user)
+                    create_comment_api(parent_comment, comment, user)
                 end
 
                 it 'returns the comment' do
-                    expect(JSON.parse(response.body)['data']['parent_comment_id']).to eq(parent_comment.id)
+                    expect(JSON.parse(response.body)['data']['commentable_id']).to eq(parent_comment.id)
                 end
 
                 it 'returns status code 200' do
@@ -68,7 +68,7 @@ RSpec.describe CommentsController, type: :request do
 
             context 'when the comment has no text' do
                 before do
-                    create_comment_api(post_, invalid_comment, user)
+                    create_comment_api(parent_comment, invalid_comment, user)
                 end
 
                 it 'returns status code 422' do
@@ -81,18 +81,21 @@ RSpec.describe CommentsController, type: :request do
             end
 
             context 'when the parent comment does not exist' do
-                let(:comment) { build(:comment, user: user, post: post_, parent_comment_id: 999) }
                 before do
-                    create_comment_api(post_, comment, user)
+                    post '/api/comments/999/comments', params: {
+                        comment: {
+                            body: 'This is a comment',
+                            user_id: user.id,
+                            commentable_type: 'Comment',
+                            commentable_id: 999
+                        }
+                    }, headers: authenticated_header(user)
                 end
 
-                it 'returns status code 422' do
-                    expect(response).to have_http_status(422)
+                it 'returns status code 404' do
+                    expect(response).to have_http_status(404)
                 end
 
-                it 'returns a validation failure message' do
-                    expect(JSON.parse(response.body)['errors'][0]).to eq("Parent comment must be associated with an existing comment on the same post")
-                end
             end
         end
     end
@@ -101,7 +104,7 @@ RSpec.describe CommentsController, type: :request do
         let(:user) { create(:user) }
         let(:community) { create(:community) }
         let(:post_) { create(:post, user: user, community: community) }
-        let(:comment) { create(:comment, user: user, post: post_) }
+        let(:comment) { create(:comment_of_post, user: user, commentable: post_) }
         let(:body) { 'This is an updated comment' }
         
         context 'when the comment exists' do
@@ -165,7 +168,7 @@ RSpec.describe CommentsController, type: :request do
         let(:user) { create(:user) }
         let(:community) { create(:community) }
         let(:post_) { create(:post, user: user, community: community) }
-        let(:comment) { create(:comment, user: user, post: post_) }
+        let(:comment) { create(:comment_of_post, user: user, commentable: post_) }
 
         context 'when the comment exists' do
             before do
