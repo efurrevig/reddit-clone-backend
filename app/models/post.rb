@@ -1,7 +1,8 @@
 class Post < ApplicationRecord
   belongs_to :user
   belongs_to :community
-
+  
+  has_many :votes, as: :votable
   has_many :comments, as: :commentable
 
   enum post_type: [ :message, :media ]

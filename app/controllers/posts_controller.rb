@@ -3,7 +3,7 @@ class PostsController < ApplicationController
     before_action :verify_owner, only: [:update, :destroy]
     #GET /api/communities/:community_id/posts
     def index
-        @community = Community.find(params[:community_id])
+        @community = Community.includes(posts: :user).find(params[:community_id])
         @posts = @community.posts
 
         if @posts.length > 0
@@ -43,13 +43,13 @@ class PostsController < ApplicationController
 
     #GET /api/communities/:community_id/posts/:id
     def show
-        post = Post.find(params[:id])
+        post = Post.includes(comments: [:user, :comments]).find(params[:id])
         post_comments = pack_comments(post.comments)
         render json: {
             status: {
                 code: 200
             },
-            data: { post: post, comments: post_comments}
+            data: { post: post, comments: post_comments }
         }
     rescue ActiveRecord::RecordNotFound
         head 404
@@ -152,7 +152,7 @@ class PostsController < ApplicationController
           {
             id: comment.id,
             body: comment.body,
-            user_id: comment.user_id,
+            username: comment.user.username,
             commentable_id: comment.commentable_id,
             commentable_type: comment.commentable_type,
             level: 0,
