@@ -312,4 +312,80 @@ RSpec.describe PostsController, type: :request do
 
     end
 
+    describe 'POST #upvote' do
+        context 'when the user is signed in' do
+            let(:user) { create(:user) }
+
+            context 'when the user has not voted on the post' do
+                let(:post_) { create(:post) }
+                let(:request_url) { "/api/posts/#{post_.id}/upvote" }
+
+                before do
+                    post request_url, headers: authenticated_header(user)
+                end
+
+                it 'should return status 200' do
+                    expect(response.status).to be(200)
+                end
+
+                it 'should create a new vote' do
+                    expect(Vote.find_by(user_id: user.id, votable_type: "Post", votable_id: post_.id).value).to be(1)
+                end
+
+                it 'the post should have a vote value of 1' do
+                    expect(Post.find(post_.id).votes.sum(:value)).to be(1)
+                end
+            end
+
+            context 'when the user has already upvoted the post' do
+                let(:post_) { create(:post) }
+                let(:request_url) { "/api/posts/#{post_.id}/upvote" }
+                let!(:vote) { create(:vote, user: user, votable: post_) }
+
+                before do
+                    post request_url, headers: authenticated_header(user)
+                end
+
+                it 'should return status 200' do
+                    expect(response.status).to be(200)
+                end
+
+                it 'should change the vote value to 0' do
+                    expect(Vote.find_by(user_id: user.id, votable_type: "Post", votable_id: post_.id).value).to be(0)
+                end
+            end
+
+            context 'when the user has already downvoted the post' do
+                let(:post_) { create(:post) }
+                let(:request_url) { "/api/posts/#{post_.id}/upvote" }
+                let!(:vote) { create(:vote, user: user, value: -1) }
+
+                before do
+                    post request_url, headers: authenticated_header(user)
+                end
+
+                it 'should return status 200' do
+                    expect(response.status).to be(200)
+                end
+
+                it 'should change the vote value to 1' do
+                    expect(Vote.find_by(user_id: user.id, votable_type: "Post", votable_id: post_.id).value).to be(1)
+                end
+            end
+        end
+
+        context 'when the user is not signed in' do
+            let(:post_) { create(:post) }
+            let(:request_url) { "/api/posts/#{post_.id}/upvote" }
+
+            before do
+                post request_url, headers: nil
+            end
+
+            it 'should return status 401' do
+                expect(response.status).to be(401)
+            end
+        end
+    end
+
 end

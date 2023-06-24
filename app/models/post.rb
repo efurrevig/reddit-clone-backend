@@ -1,3 +1,20 @@
+# Schema Information
+#
+# Table name: posts
+#
+#  id                 :bigint           not null, primary key
+#  user_id            :bigint           not null
+#  community_id       :bigint           not null
+#  post_type          :integer          default( 0: "message" ), not null
+#  title              :string           not null
+#  body               :text
+#  media_url          :string
+#  created_at         :datetime         not null
+#  updated_at         :datetime         not null
+#  is_deleted?        :boolean          default(FALSE)
+#
+
+
 class Post < ApplicationRecord
   belongs_to :user
   belongs_to :community

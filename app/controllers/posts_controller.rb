@@ -1,6 +1,7 @@
 class PostsController < ApplicationController
-    before_action :authenticate_user!, only: [:create, :update, :destroy]
+    before_action :authenticate_user!, only: [:create, :update, :destroy, :upvote, :downvote]
     before_action :verify_owner, only: [:update, :destroy]
+
     #GET /api/communities/:community_id/posts
     def index
         @community = Community.includes(posts: :user).find(params[:community_id])
@@ -127,6 +128,32 @@ class PostsController < ApplicationController
 
     end
 
+
+    def vote_post(direction)
+        vote = Vote.find_or_initialize_by(votable_type: "Post", votable_id: params[:id], user_id: current_user.id)
+        vote.value = (vote.value == direction ? 0 : direction)
+        if vote.save
+            head 200
+        else
+            render json: {
+                status: {
+                    code: 422,
+                    message: vote.errors.full_messages
+                }
+            }, status: 422
+        end
+    end
+
+    def upvote
+        vote_post(1)
+    end
+
+    def downvote
+        vote_post(-1)
+    end
+
+
+
     private
 
     def post_params
@@ -143,6 +170,12 @@ class PostsController < ApplicationController
     rescue ActiveRecord::RecordNotFound
         head 404
     end
+
+    # def get_post
+    #     @post = Post.find(params[:id])
+    # rescue ActiveRecord::RecordNotFound
+    #     head 404
+    # end
 
 
     #generating comment tree, probably not the best way to do it
