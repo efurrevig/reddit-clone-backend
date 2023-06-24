@@ -22,6 +22,9 @@ Rails.application.routes.draw do
     post '/posts/:id/upvote', to: 'posts#upvote'
     post '/posts/:id/downvote', to: 'posts#downvote'
 
+    post '/comments/:id/upvote', to: 'comments#upvote'
+    post '/comments/:id/downvote', to: 'comments#downvote'
+
     resources :comments, only: [:update, :destroy]
     post '/posts/:post_id/comments', to: 'comments#create'
     post '/comments/:comment_id/comments', to: 'comments#create'

@@ -206,4 +206,149 @@ RSpec.describe CommentsController, type: :request do
         end
     end
 
+    describe 'POST #upvote' do
+        context 'when the user is signed in' do
+            let(:user) { create(:user) }
+            let!(:comment) { create(:comment_of_post, user: user) }
+            let(:request_url) { "/api/comments/#{comment.id}/upvote" }
+
+            context 'when the user has not voted on the comment' do
+                before do
+                    post request_url, headers: authenticated_header(user)
+                end
+
+                it 'returns status code 204' do
+                    expect(response).to have_http_status(204)
+                end
+
+                it 'creates the vote' do
+                    expect(Vote.find_by(votable_type: 'Comment', votable_id: comment.id, user_id: user.id).value).to be(1)
+                end
+
+                it 'the comment should have a vote value of 1' do
+                    expect(Comment.find(comment.id).votes.sum(:value)).to be(1)
+                end
+            end
+
+            context 'when the user has already upvoted the comment' do
+                before do
+                    post request_url, headers: authenticated_header(user)
+                    post request_url, headers: authenticated_header(user)
+                end
+
+                it 'returns status code 204' do
+                    expect(response).to have_http_status(204)
+                end
+
+                it 'the comment should have a vote value of 0' do
+                    expect(Comment.find(comment.id).votes.sum(:value)).to be(0)
+                end
+            end
+
+            context 'when the user has already downvoted the comment' do
+                let!(:vote) { create(:vote, votable: comment, user: user, value: -1) }
+                before do
+                    post request_url, headers: authenticated_header(user)
+                end
+
+                it 'returns status code 204' do
+                    expect(response).to have_http_status(204)
+                end
+
+                it 'the comment should have a vote value of 1' do
+                    expect(Comment.find(comment.id).votes.sum(:value)).to be(1)
+                end
+
+                it 'the vote should have a value of 1' do
+                    expect(Vote.find(vote.id).value).to be(1)
+                end
+            end
+
+        end
+
+        context 'when the user is not signed in' do
+            let(:comment) { create(:comment_of_post) }
+            before do
+                post "/api/comments/#{comment.id}/upvote"
+            end
+
+            it 'returns status code 401' do
+                expect(response).to have_http_status(401)
+            end
+        end
+
+    end
+
+    describe 'POST #downvote' do
+        context 'when the user is signed in' do
+            let(:user) { create(:user) }
+            let!(:comment) { create(:comment_of_post, user: user) }
+            let(:request_url) { "/api/comments/#{comment.id}/downvote" }
+
+            context 'when the user has not voted on the comment' do
+                before do
+                    post request_url, headers: authenticated_header(user)
+                end
+
+                it 'returns status code 204' do
+                    expect(response).to have_http_status(204)
+                end
+
+                it 'creates the vote' do
+                    expect(Vote.find_by(votable_type: 'Comment', votable_id: comment.id, user_id: user.id).value).to be(-1)
+                end
+
+                it 'the comment should have a vote value of -1' do
+                    expect(Comment.find(comment.id).votes.sum(:value)).to be(-1)
+                end
+            end
+
+            context 'when the user has already downvoted the comment' do
+                before do
+                    post request_url, headers: authenticated_header(user)
+                    post request_url, headers: authenticated_header(user)
+                end
+
+                it 'returns status code 204' do
+                    expect(response).to have_http_status(204)
+                end
+
+                it 'the comment should have a vote value of 0' do
+                    expect(Comment.find(comment.id).votes.sum(:value)).to be(0)
+                end
+            end
+
+            context 'when the user has already upvoted the comment' do
+                let!(:vote) { create(:vote, votable: comment, user: user, value: 1) }
+                before do
+                    post request_url, headers: authenticated_header(user)
+                end
+
+                it 'returns status code 204' do
+                    expect(response).to have_http_status(204)
+                end
+
+                it 'the comment should have a vote value of -1' do
+                    expect(Comment.find(comment.id).votes.sum(:value)).to be(-1)
+                end
+
+                it 'the vote should have a value of -1' do
+                    expect(Vote.find(vote.id).value).to be(-1)
+                end
+            end
+
+        end
+
+        context 'when the user is not signed in' do
+            let(:comment) { create(:comment_of_post) }
+            before do
+                post "/api/comments/#{comment.id}/downvote"
+            end
+
+            it 'returns status code 401' do
+                expect(response).to have_http_status(401)
+            end
+        end
+    end
+
 end

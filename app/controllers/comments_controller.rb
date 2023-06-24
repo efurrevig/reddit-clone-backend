@@ -1,5 +1,5 @@
 class CommentsController < ApplicationController
-    before_action :authenticate_user!, only: [:create, :update, :destroy]
+    before_action :authenticate_user!, only: [:create, :update, :destroy, :upvote, :downvote]
     before_action :verify_comment_owner, only: [:update, :destroy]
     before_action :get_comment, only: [:update, :destroy]
     
@@ -64,6 +64,29 @@ class CommentsController < ApplicationController
     def destroy
         @comment.update!(is_deleted?: true)
         head :no_content
+    end
+
+    def vote_comment(direction)
+        vote = Vote.find_or_initialize_by(votable_type: "Comment", votable_id: params[:id], user_id: current_user.id)
+        vote.value = (vote.value == direction ? 0 : direction)
+        if vote.save
+            head 204
+        else
+            render json: {
+                status: {
+                    code: 422,
+                    message: vote.errors.full_messages
+                }
+            }, status: 422
+        end
+    end
+
+    def upvote
+        vote_comment(1)
+    end
+
+    def downvote
+        vote_comment(-1)
     end
 
     private
