@@ -8,6 +8,7 @@
 #  username               :string           not null
 #  created_at             :datetime         not null
 #  updated_at             :datetime         not null
+#  jti                    :string           not null
 #
 
 class User < ApplicationRecord
@@ -20,4 +21,6 @@ class User < ApplicationRecord
   has_many :communities, through: :subscriptions
   has_many :posts
   has_many :comments
+
+  validates :username, uniqueness: true, presence: true
 end

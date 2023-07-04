@@ -77,6 +77,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
       render json: {
         status: {code: 422, message: "#{resource.errors.full_messages.to_sentence}"}
       }, status: :unprocessable_entity
+      puts resource.errors.full_messages.to_sentence
     end
   end
 end

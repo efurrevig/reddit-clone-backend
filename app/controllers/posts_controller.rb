@@ -5,7 +5,7 @@ class PostsController < ApplicationController
     #GET /api/communities/:community_id/posts
     def index
         @community = Community.includes(posts: :user).find(params[:community_id])
-        @posts = @community.posts
+        @posts = pack_posts(@community.posts)
 
         if @posts.length > 0
             render json: {
@@ -191,6 +191,20 @@ class PostsController < ApplicationController
             level: 0,
             comments: pack_comments(comment.comments)
           }
+        end
+    end
+
+    def pack_posts(posts)
+        posts.map do |post|
+            {
+                id: post.id,
+                title: post.title,
+                body: post.body,
+                post_type: post.post_type,
+                media_url: post.media_url,
+                username: post.user.username,
+                community_id: post.community_id
+            }
         end
     end
 end
