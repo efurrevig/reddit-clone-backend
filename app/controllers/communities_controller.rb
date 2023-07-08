@@ -12,6 +12,13 @@ class CommunitiesController < ApplicationController
     end
 
     def show
+        @community = Community.find(params[:id])
+        render json: {
+            status: {
+                code: 200
+            },
+            data: @community
+        }
     end
 
     def create

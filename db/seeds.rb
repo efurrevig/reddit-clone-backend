@@ -8,14 +8,43 @@
 
 
 communities = []
+users = []
+posts = []
 
-10.times do  
-    community = FactoryBot.create(:community)
-    communities << community
+10.times do
+    communities << FactoryBot.create(:community, name: Faker::Creature::Animal.unique.name())
 end
 
-communities.each do |community|
-    2.times do
-        FactoryBot.create(:post, community: community)
+10.times do
+    communities << FactoryBot.create(:community, name: Faker::Music.unique.genre)
+end
+
+10.times do
+    communities << FactoryBot.create(:community, name: Faker::Games::Zelda.unique.game)
+end
+
+10.times do
+    communities << FactoryBot.create(:community, name: Faker::Music.unique.instrument)
+end
+
+10.times do
+    communities << FactoryBot.create(:community, name: Faker::Movies::LordOfTheRings.unique.character)
+end
+
+20.times do
+    users << FactoryBot.create(:user)
+end
+
+users.each do |user|
+    communities.each do |community|
+        FactoryBot.create(:subscriber, user: user, community: community)
+        posts << FactoryBot.create(:post, user: user, community: community, title: Faker::Lorem.sentence(word_count: 3), body: Faker::Lorem.word)
+    end
+end
+
+
+users.each do |user|
+    posts.each do |post|
+        FactoryBot.create(:vote, user: user, votable: post, value: [-1, 1].sample)
     end
 end
