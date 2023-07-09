@@ -4,15 +4,18 @@ class PostsController < ApplicationController
 
     #GET /api/communities/:community_id/posts
     def index
-        @community = Community.includes(posts: [:user, :votes]).find(params[:community_id])
-        @posts = pack_posts(@community.posts)
+        if current_user != nil
+            posts = Post.fetch_posts_with_user(params[:sorted_by], params[:community_id], current_user.id)
+        else
+            posts = Post.fetch_posts_without_user(params[:sorted_by], params[:community_id])
+        end
 
-        if @posts.length > 0
+        if posts.length > 0
             render json: {
                 status: {
                     code: 200
                 },
-                data: @posts
+                data: posts
             }
         else
             head 204
@@ -44,7 +47,7 @@ class PostsController < ApplicationController
 
     #GET /api/communities/:community_id/posts/:id
     def show
-        post = posts = Post.includes(comments: [:user, :comments, :votes])
+        post = Post.includes(comments: [:user, :comments, :votes])
             .find(params[:id])
         post_comments = pack_comments(post.comments)
         render json: {
@@ -187,7 +190,7 @@ class PostsController < ApplicationController
             commentable_type: comment.commentable_type,
             level: 0,
             vote_count: comment.vote_count,
-            voted: current_user == nil ? 0 : comment.votes.where(user_id: current_user.id).value || 0,
+            voted: current_user == nil ? 0 : comment.votes.find_by(user_id: current_user.id).value || 0,
             comments: pack_comments(comment.comments)
           }
         end
@@ -195,6 +198,7 @@ class PostsController < ApplicationController
 
     def pack_posts(posts)
         posts.map do |post|
+            vote = current_user == nil ? nil : post.votes.find_by(user_id: current_user.id)
             {
                 id: post.id,
                 title: post.title,
@@ -204,7 +208,7 @@ class PostsController < ApplicationController
                 username: post.user.username,
                 community_id: post.community_id,
                 vote_count: post.vote_count,
-                voted: current_user == nil ? 0 : post.votes.where(user_id: current_user.id).value || 0,
+                voted: vote == nil ? 0 : vote.value,
                 is_deleted?: post.is_deleted?,
             }
         end

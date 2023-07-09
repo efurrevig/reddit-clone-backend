@@ -20,7 +20,7 @@ end
 end
 
 10.times do
-    communities << FactoryBot.create(:community, name: Faker::Games::Zelda.unique.game)
+    communities << FactoryBot.create(:community, name: Faker::Games::Zelda.unique.game.delete(' '))
 end
 
 10.times do
@@ -28,7 +28,7 @@ end
 end
 
 10.times do
-    communities << FactoryBot.create(:community, name: Faker::Movies::LordOfTheRings.unique.character)
+    communities << FactoryBot.create(:community, name: Faker::Movies::LordOfTheRings.unique.character.delete(' '))
 end
 
 20.times do
