@@ -4,7 +4,7 @@ class PostsController < ApplicationController
 
     #GET /api/communities/:community_id/posts
     def index
-        @community = Community.includes(posts: :user).find(params[:community_id])
+        @community = Community.includes(posts: [:user, :votes]).find(params[:community_id])
         @posts = pack_posts(@community.posts)
 
         if @posts.length > 0
@@ -44,7 +44,8 @@ class PostsController < ApplicationController
 
     #GET /api/communities/:community_id/posts/:id
     def show
-        post = Post.includes(comments: [:user, :comments]).find(params[:id])
+        post = posts = Post.includes(comments: [:user, :comments, :votes])
+            .find(params[:id])
         post_comments = pack_comments(post.comments)
         render json: {
             status: {
@@ -131,7 +132,9 @@ class PostsController < ApplicationController
 
     def vote_post(direction)
         vote = Vote.find_or_initialize_by(votable_type: "Post", votable_id: params[:id], user_id: current_user.id)
+        vote.prev_value = vote.value
         vote.value = (vote.value == direction ? 0 : direction)
+   
         if vote.save
             head 200
         else
@@ -171,12 +174,6 @@ class PostsController < ApplicationController
         head 404
     end
 
-    # def get_post
-    #     @post = Post.find(params[:id])
-    # rescue ActiveRecord::RecordNotFound
-    #     head 404
-    # end
-
 
     #generating comment tree, probably not the best way to do it
     #but it works for now, will refactor later
@@ -189,6 +186,8 @@ class PostsController < ApplicationController
             commentable_id: comment.commentable_id,
             commentable_type: comment.commentable_type,
             level: 0,
+            vote_count: comment.vote_count,
+            voted: current_user == nil ? 0 : comment.votes.where(user_id: current_user.id).value || 0,
             comments: pack_comments(comment.comments)
           }
         end
@@ -203,7 +202,10 @@ class PostsController < ApplicationController
                 post_type: post.post_type,
                 media_url: post.media_url,
                 username: post.user.username,
-                community_id: post.community_id
+                community_id: post.community_id,
+                vote_count: post.vote_count,
+                voted: current_user == nil ? 0 : post.votes.where(user_id: current_user.id).value || 0,
+                is_deleted?: post.is_deleted?,
             }
         end
     end

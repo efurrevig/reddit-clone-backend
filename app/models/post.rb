@@ -12,6 +12,7 @@
 #  created_at         :datetime         not null
 #  updated_at         :datetime         not null
 #  is_deleted?        :boolean          default(FALSE)
+#  like_count         :integer          default(0), not null
 #
 
 
@@ -26,4 +27,9 @@ class Post < ApplicationRecord
 
   validates :media_url, presence: true, if: -> { media? }
   validates :body, presence: true, if: -> { message? }
+
+  def update_vote_count(value)
+    self.vote_count += value
+    self.save!
+  end
 end

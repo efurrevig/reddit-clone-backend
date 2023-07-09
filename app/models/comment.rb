@@ -9,6 +9,7 @@
 #  body                  :text             not null
 #  created_at            :datetime         not null
 #  updated_at            :datetime         not null
+#  like_count            :integer          default(0), not null
 #
 
 class Comment < ApplicationRecord
@@ -23,5 +24,10 @@ class Comment < ApplicationRecord
 
   validates :commentable_type, presence: true, inclusion: { in: %w(Post Comment) }
   validates :commentable, presence: true
+  
+  def update_vote_count(value)
+    self.vote_count += value
+    self.save!
+  end
 
 end

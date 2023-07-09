@@ -335,6 +335,10 @@ RSpec.describe PostsController, type: :request do
                 it 'the post should have a vote value of 1' do
                     expect(Post.find(post_.id).votes.sum(:value)).to be(1)
                 end
+
+                it 'should have a vote_count of 1' do
+                    expect(Post.find(post_.id).vote_count).to be(1)
+                end
             end
 
             context 'when the user has already upvoted the post' do
@@ -353,6 +357,10 @@ RSpec.describe PostsController, type: :request do
                 it 'should change the vote value to 0' do
                     expect(Vote.find_by(user_id: user.id, votable_type: "Post", votable_id: post_.id).value).to be(0)
                 end
+
+                it 'should have a vote_count of 0' do
+                    expect(Post.find(post_.id).vote_count).to be(0)
+                end
             end
 
             context 'when the user has already downvoted the post' do
@@ -370,6 +378,10 @@ RSpec.describe PostsController, type: :request do
 
                 it 'should change the vote value to 1' do
                     expect(Vote.find_by(user_id: user.id, votable_type: "Post", votable_id: post_.id).value).to be(1)
+                end
+
+                it 'should have a vote_count of 1' do
+                    expect(Post.find(post_.id).vote_count).to be(1)
                 end
             end
         end
@@ -411,6 +423,10 @@ RSpec.describe PostsController, type: :request do
                 it 'the post should have a vote value of -1' do
                     expect(Post.find(post_.id).votes.sum(:value)).to be(-1)
                 end
+
+                it 'should have a vote_count of -1' do
+                    expect(Post.find(post_.id).vote_count).to be(-1)
+                end
             end
 
             context 'when the user has already downvoted the post' do
@@ -429,6 +445,10 @@ RSpec.describe PostsController, type: :request do
                 it 'should change the vote value to 0' do
                     expect(Vote.find_by(user_id: user.id, votable_type: "Post", votable_id: post_.id).value).to be(0)
                 end
+
+                it 'should have a vote_count of 0' do
+                    expect(Post.find(post_.id).vote_count).to be(0)
+                end
             end
 
             context 'when the user has already upvoted the post' do
@@ -446,6 +466,10 @@ RSpec.describe PostsController, type: :request do
 
                 it 'should change the vote value to -1' do
                     expect(Vote.find_by(user_id: user.id, votable_type: "Post", votable_id: post_.id).value).to be(-1)
+                end
+
+                it 'should have a vote_count of -1' do
+                    expect(Post.find(post_.id).vote_count).to be(-1)
                 end
             end
             
