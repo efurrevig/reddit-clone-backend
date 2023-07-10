@@ -77,13 +77,11 @@ class Post < ApplicationRecord
       return Post.joins(vote_join.to_sql)
         .where(community_id: community_id)
         .select('posts.*, votes.value as vote_value')
-        .order('posts.vote_count DESC')
         .order('posts.created_at DESC')
     when 'top'
       return Post.joins(vote_join.to_sql)
         .where(community_id: community_id)
         .select('posts.*, votes.value as vote_value')
-        .order('posts.vote_count DESC')
         .order('posts.vote_count DESC')
     else
       return Post.joins(vote_join.to_sql)
