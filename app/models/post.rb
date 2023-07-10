@@ -58,31 +58,41 @@ class Post < ApplicationRecord
     end
   end
 
-  def self.fetch_posts_with_user(sorted_by, community_id, user_id = nil, page = nil)
+  def self.fetch_posts_with_user(sorted_by, community_id, user_id, page = nil)
+    posts_table = Post.arel_table
+    votes_table = Vote.arel_table
+
+    vote_join = Arel::Nodes::OuterJoin.new(
+      votes_table,
+      Arel::Nodes::On.new(
+        votes_table[:votable_id].eq(posts_table[:id]).and(votes_table[:user_id].eq(user_id))
+    ))
     case sorted_by
     when 'hot'
-      return Post
-        .joins(:votes)
+      return Post.joins(vote_join.to_sql)
+        .where(community_id: community_id)
         .select('posts.*, votes.value as vote_value')
-        .where('posts.community_id = ? AND posts.id = votes.votable_id AND votes.user_id = ?', community_id, user_id)
         .order('posts.vote_count DESC')
     when 'new'
-      return Post
-        .joins(:votes)
+      return Post.joins(vote_join.to_sql)
+        .where(community_id: community_id)
         .select('posts.*, votes.value as vote_value')
-        .where('posts.community_id = ? AND posts.id = votes.votable_id AND votes.user_id = ?', community_id, user_id)
+        .order('posts.vote_count DESC')
         .order('posts.created_at DESC')
     when 'top'
-      return Post
-        .joins(:votes)
+      return Post.joins(vote_join.to_sql)
+        .where(community_id: community_id)
         .select('posts.*, votes.value as vote_value')
-        .where('posts.community_id = ? AND posts.id = votes.votable_id AND votes.user_id = ?', community_id, user_id)
+        .order('posts.vote_count DESC')
         .order('posts.vote_count DESC')
     else
-      return Post
-        .select('posts.*')
-        .where('posts.community_id = ?', community_id)
+      return Post.joins(vote_join.to_sql)
+        .where(community_id: community_id)
+        .select('posts.*, votes.value as vote_value')
         .order('posts.vote_count DESC')
     end
   end
 end
+
+
+

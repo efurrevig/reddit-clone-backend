@@ -16,7 +16,7 @@ Rails.application.routes.draw do
     get '/users/:user_id/posts', to: 'posts#user_posts'
     resources :communities do
       resources :subscribers
-      resources :posts
+      resources :posts, except: [:show]
     end
 
     post '/posts/:id/upvote', to: 'posts#upvote'
@@ -28,6 +28,12 @@ Rails.application.routes.draw do
     resources :comments, only: [:update, :destroy]
     post '/posts/:post_id/comments', to: 'comments#create'
     post '/comments/:comment_id/comments', to: 'comments#create'
+
+
+    #community post routes
+    get '/communities/:community_id/posts/hot', to: 'posts#community_posts_hot'
+    get '/communities/:community_id/posts/new', to: 'posts#community_posts_new'
+    get '/communities/:community_id/posts/top', to: 'posts#community_posts_top'
 
 
   end

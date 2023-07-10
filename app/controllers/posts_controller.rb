@@ -25,6 +25,41 @@ class PostsController < ApplicationController
         head 404
     end
 
+    def community_posts_hot
+        fetch_posts('hot', params[:community_id])
+    end
+
+    def community_posts_new
+        fetch_posts('new', params[:community_id])
+    end
+
+    def community_posts_top
+        fetch_posts('top', params[:community_id])
+    end
+
+    def fetch_posts(sorted_by, community_id)
+        if current_user != nil
+            posts = Post.fetch_posts_with_user(sorted_by, community_id, current_user.id)
+        else
+            posts = Post.fetch_posts_without_user(sorted_by, community_id)
+        end
+
+        if posts.length > 0
+            render json: {
+                status: {
+                    code: 200
+                },
+                data: posts
+            }
+        else
+            head 204
+        end
+
+    rescue ActiveRecord::RecordNotFound
+        head 404
+    end
+
+
     #GET /api/users/:user_id/posts
     def user_posts
         user = User.find(params[:user_id])
