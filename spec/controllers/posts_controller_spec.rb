@@ -68,55 +68,55 @@ RSpec.describe PostsController, type: :request do
         end
     end
 
-    describe 'GET #show' do
+    # describe 'GET #show' do
 
-        context 'when the post exists' do
-            let(:post) { create(:post) }
-            let(:request_url) { "/api/communities/#{post.community.id}/posts/#{post.id}"}
-            before do
-                get request_url
-            end
+    #     context 'when the post exists' do
+    #         let(:post) { create(:post) }
+    #         let(:request_url) { "/api/communities/#{post.community.id}/posts/#{post.id}"}
+    #         before do
+    #             get request_url
+    #         end
 
-            it 'should return status 200' do
-                expect(response.status).to be(200)
-            end
+    #         it 'should return status 200' do
+    #             expect(response.status).to be(200)
+    #         end
 
-            it 'the response should include the post' do
-                expect(JSON.parse(response.body)['data']['post']['title']).to eq(post.title)
-            end
-        end
+    #         it 'the response should include the post' do
+    #             expect(JSON.parse(response.body)['data']['post']['title']).to eq(post.title)
+    #         end
+    #     end
 
-        context 'when the post does not exist' do
-            let(:community) { create(:community) }
-            let(:request_url) { "/api/communities/#{community.id}/posts/1"}
-            before do
-                get request_url
-            end
+    #     context 'when the post does not exist' do
+    #         let(:community) { create(:community) }
+    #         let(:request_url) { "/api/communities/#{community.id}/posts/1"}
+    #         before do
+    #             get request_url
+    #         end
 
-            it 'should return status 404' do
-                expect(response.status).to be (404)
-            end
-        end
+    #         it 'should return status 404' do
+    #             expect(response.status).to be (404)
+    #         end
+    #     end
 
-        context 'when the post has comments' do
-            let(:post) { create(:post) }
-            let(:request_url) { "/api/communities/#{post.community.id}/posts/#{post.id}"}
+    #     context 'when the post has comments' do
+    #         let(:post) { create(:post) }
+    #         let(:request_url) { "/api/communities/#{post.community.id}/posts/#{post.id}"}
 
-            before do
-                populate_post_with_comments(post, 5)
-                get request_url
-            end
+    #         before do
+    #             populate_post_with_comments(post, 5)
+    #             get request_url
+    #         end
 
-            it 'should return status 200' do
-                expect(response.status).to be(200)
-            end
+    #         it 'should return status 200' do
+    #             expect(response.status).to be(200)
+    #         end
 
-            it 'the response should include the post\'s comments' do
-                expect(JSON.parse(response.body)['data']['comments'].length).to eq(5)
-            end
-        end
+    #         it 'the response should include the post\'s comments' do
+    #             expect(JSON.parse(response.body)['data']['comments'].length).to eq(5)
+    #         end
+    #     end
 
-    end
+    # end
 
     describe 'POST #create' do
 

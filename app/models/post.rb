@@ -23,9 +23,9 @@ class Post < ApplicationRecord
   has_many :votes, as: :votable
   has_many :comments, as: :commentable
 
-  enum post_type: [ :message, :media ]
+  enum post_type: [ :message, :media, :url ]
 
-  validates :media_url, presence: true, if: -> { media? }
+  validates :media_url, presence: true, if: -> { url? }
   validates :body, presence: true, if: -> { message? }
 
   def update_vote_count(value)

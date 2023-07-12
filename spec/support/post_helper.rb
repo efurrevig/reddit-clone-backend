@@ -21,7 +21,7 @@ module PostHelper
                 title: new_post.title,
                 body: new_post.body,
                 post_type: new_post.post_type,
-                media_url: new_post.media_url,
+                url: new_post.url,
                 user_id: user ? user.id : nil
             }
         }, headers: user ? authenticated_header(user) : nil
@@ -34,7 +34,7 @@ module PostHelper
                 title: edited_post.title,
                 body: edited_post.body,
                 post_type: edited_post.post_type,
-                media_url: edited_post.media_url,
+                url: edited_post.url,
             }
         }, headers: user ? authenticated_header(user) : nil
     end

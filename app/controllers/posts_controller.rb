@@ -99,8 +99,10 @@ class PostsController < ApplicationController
 
     #POST /api/communities/:community_id/posts
     def create
+        Rails.logger.info(JSON.parse(request.body.read))
         community = Community.find(params[:community_id])
         post = community.posts.build(post_params)
+        post.user_id = current_user.id
         post.save!
         render json: {
             status: {
@@ -198,11 +200,11 @@ class PostsController < ApplicationController
     private
 
     def post_params
-        params.require(:post).permit(:title, :body, :post_type, :media_url, :user_id)
+        params.require(:post).permit(:title, :body, :post_type, :url)
     end
 
     def edit_post_params
-        params.require(:post).permit(:title, :body, :post_type, :media_url)
+        params.require(:post).permit(:title, :body, :post_type, :url)
     end
 
     def verify_owner
