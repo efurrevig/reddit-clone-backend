@@ -1,5 +1,5 @@
 class PostsController < ApplicationController
-    before_action :authenticate_user!, only: [:create, :update, :destroy, :upvote, :downvote]
+    before_action :authenticate_user!, only: [:create, :update, :destroy, :upvote, :downvote, :home_posts_hot]
     before_action :verify_owner, only: [:update, :destroy]
 
     #GET /api/communities/:community_id/posts
@@ -23,6 +23,32 @@ class PostsController < ApplicationController
 
     rescue ActiveRecord::RecordNotFound
         head 404
+    end
+
+    def home_posts_hot
+        get_home_posts('hot', current_user.id)
+    end
+
+    def home_posts_new
+
+    end
+
+    def home_posts_top
+        
+    end
+
+    def get_home_posts(sorted_by, user_id, page = nil)
+        posts = Post.fetch_home_posts(sorted_by, user_id, page)
+        if posts.length > 0
+            render json: {
+                status: {
+                    code: 200
+                },
+                data: posts
+            }
+        else
+            head 204
+        end
     end
 
     def community_posts_hot

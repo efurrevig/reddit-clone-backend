@@ -35,6 +35,9 @@ Rails.application.routes.draw do
     get '/communities/:community_id/posts/new', to: 'posts#community_posts_new'
     get '/communities/:community_id/posts/top', to: 'posts#community_posts_top'
 
+    #home post routes
+    get '/home/posts/hot', to: 'posts#home_posts_hot'
+
 
   end
 

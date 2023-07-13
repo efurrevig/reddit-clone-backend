@@ -25,7 +25,7 @@ class Post < ApplicationRecord
 
   enum post_type: [ :message, :media, :url ]
 
-  validates :media_url, presence: true, if: -> { url? }
+  validates :url, presence: true, if: -> { url? }
   validates :body, presence: true, if: -> { message? }
 
   def update_vote_count(value)
@@ -90,7 +90,37 @@ class Post < ApplicationRecord
         .order('posts.vote_count DESC')
     end
   end
+
+  def self.fetch_home_posts(sorted_by, user_id, page = nil)
+    posts_table = Post.arel_table
+    votes_table = Vote.arel_table
+    subscriber_table = Subscriber.arel_table
+
+    sub_join = Arel::Nodes::InnerJoin.new(
+      subscriber_table,
+      Arel::Nodes::On.new(
+        subscriber_table[:community_id].eq(posts_table[:community_id])
+        .and(subscriber_table[:user_id].eq(user_id))
+      )
+    )
+    vote_join = Arel::Nodes::OuterJoin.new(
+      votes_table,
+      Arel::Nodes::On.new(
+        votes_table[:votable_id].eq(posts_table[:id]).and(votes_table[:user_id].eq(user_id))
+      )
+    )
+    case sorted_by
+    when 'hot'
+      return Post.joins(sub_join.to_sql)
+        .joins(vote_join.to_sql)
+        .select('posts.*, votes.value as vote_value')
+        .order('posts.vote_count DESC')
+    else
+      return Post.joins(sub_join.to_sql)
+        .joins(vote_join.to_sql)
+        .select('posts.*, votes.value as vote_value')
+        .order('posts.vote_count DESC')
+    end
+  end
 end
-
-
 
