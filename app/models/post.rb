@@ -28,11 +28,19 @@ class Post < ApplicationRecord
   validates :url, presence: true, if: -> { url? }
   validates :body, presence: true, if: -> { message? }
 
+
+
   def update_vote_count(value)
     self.vote_count += value
     self.save!
   end
 
+  def update_comment_count(value)
+    self.comment_count += value
+    self.save!
+  end
+
+  # NOT LOGGED IN, returns posts for a community
   def self.fetch_posts_without_user(sorted_by, community_id, page = nil)
     case sorted_by
     when 'hot'
@@ -58,6 +66,7 @@ class Post < ApplicationRecord
     end
   end
 
+  # LOGGED IN returns posts for a community with the vote value (if any) for a user
   def self.fetch_posts_with_user(sorted_by, community_id, user_id, page = nil)
     posts_table = Post.arel_table
     votes_table = Vote.arel_table
@@ -91,7 +100,8 @@ class Post < ApplicationRecord
     end
   end
 
-  def self.fetch_home_posts(sorted_by, user_id, page = nil)
+  # LOGGED IN returns the posts for a user's subscribed communities with the vote value (if any) for the user
+  def self.fetch_home_posts_with_user(sorted_by, user_id, page = nil)
     posts_table = Post.arel_table
     votes_table = Vote.arel_table
     subscriber_table = Subscriber.arel_table
@@ -120,6 +130,16 @@ class Post < ApplicationRecord
         .joins(vote_join.to_sql)
         .select('posts.*, votes.value as vote_value')
         .order('posts.vote_count DESC')
+    end
+  end
+
+  # NOT LOGGED IN returns all posts
+  def self.fetch_home_posts_without_user(sorted_by, page = nil)
+    case sorted_by
+    when 'hot'
+      return Post.order('posts.vote_count DESC').limit(30)
+    else
+      return Post.order('posts.vote_count DESC').limit(30)
     end
   end
 end

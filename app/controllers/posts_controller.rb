@@ -1,5 +1,5 @@
 class PostsController < ApplicationController
-    before_action :authenticate_user!, only: [:create, :update, :destroy, :upvote, :downvote, :home_posts_hot]
+    before_action :authenticate_user!, only: [:create, :update, :destroy, :upvote, :downvote]
     before_action :verify_owner, only: [:update, :destroy]
 
     #GET /api/communities/:community_id/posts
@@ -25,20 +25,16 @@ class PostsController < ApplicationController
         head 404
     end
 
-    def home_posts_hot
-        get_home_posts('hot', current_user.id)
+    def home_posts
+        get_home_posts(params[:sorted_by])
     end
 
-    def home_posts_new
-
-    end
-
-    def home_posts_top
-        
-    end
-
-    def get_home_posts(sorted_by, user_id, page = nil)
-        posts = Post.fetch_home_posts(sorted_by, user_id, page)
+    def get_home_posts(sorted_by, page = nil)
+        if current_user != nil
+            posts = Post.fetch_home_posts_with_user(sorted_by, current_user.id, page)
+        else
+            posts = Post.fetch_home_posts_without_user(sorted_by, page)
+        end
         if posts.length > 0
             render json: {
                 status: {
@@ -51,16 +47,8 @@ class PostsController < ApplicationController
         end
     end
 
-    def community_posts_hot
-        fetch_posts('hot', params[:community_id])
-    end
-
-    def community_posts_new
-        fetch_posts('new', params[:community_id])
-    end
-
-    def community_posts_top
-        fetch_posts('top', params[:community_id])
+    def community_posts
+        fetch_posts(params[:sorted_by], params[:community_id])
     end
 
     def fetch_posts(sorted_by, community_id)

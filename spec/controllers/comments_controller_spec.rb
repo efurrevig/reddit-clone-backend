@@ -26,6 +26,10 @@ RSpec.describe CommentsController, type: :request do
                 it 'creates the comment' do
                     expect(Comment.count).to eq(1)
                 end
+
+                it 'increments the comment count on the post' do
+                    expect(Post.find(post_.id).comment_count).to eq(1)
+                end
             end
 
             context 'when the request is invalid' do
@@ -39,6 +43,10 @@ RSpec.describe CommentsController, type: :request do
 
                 it 'returns a validation failure message' do
                     expect(JSON.parse(response.body)['errors'][0]).to eq("Body can't be blank")
+                end
+
+                it 'does not increment the comment_count of the post' do
+                    expect(Post.find(post_.id).comment_count).to eq(0)
                 end
             end
         end
@@ -63,6 +71,14 @@ RSpec.describe CommentsController, type: :request do
 
                 it 'creates the comment' do
                     expect(Comment.count).to eq(2)
+                end
+
+                it 'increments the comment count on the parent comment' do
+                    expect(Comment.find(parent_comment.id).comment_count).to eq(1)
+                end
+
+                it 'increments the comment count on the post' do
+                    expect(Post.find(post_.id).comment_count).to eq(2)
                 end
             end
 

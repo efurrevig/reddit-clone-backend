@@ -31,12 +31,10 @@ Rails.application.routes.draw do
 
 
     #community post routes
-    get '/communities/:community_id/posts/hot', to: 'posts#community_posts_hot'
-    get '/communities/:community_id/posts/new', to: 'posts#community_posts_new'
-    get '/communities/:community_id/posts/top', to: 'posts#community_posts_top'
+    get '/communities/:community_id/posts/:sorted_by', to: 'posts#community_posts'
 
-    #home post routes
-    get '/home/posts/hot', to: 'posts#home_posts_hot'
+    #home post routes (all subscribed community posts if logged in or all posts if not logged in)
+    get '/home/posts/:sorted_by', to: 'posts#home_posts'
 
 
   end
