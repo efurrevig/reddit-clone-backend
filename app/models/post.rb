@@ -153,5 +153,34 @@ class Post < ApplicationRecord
       return Post.order('posts.vote_count DESC').limit(30)
     end
   end
-end
 
+  def self.fetch_post_comments_without_user(sorted_by)
+    case sorted_by
+    when 'hot'
+      return Post.select('posts.*, comments.*')
+        .joins(:comments)
+    end
+  end
+
+  def get_comments_with_children
+    parent_id = self.id
+    sql =
+      <<-SQL
+        WITH RECURSIVE comment_tree AS (
+          SELECT c.commentable_id, c.id
+          FROM comments c
+          WHERE c.commentable_id = #{parent_id}
+          
+          UNION
+            SELECT c.commentable_id, c.id
+            FROM comments c
+            JOIN comment_tree ct ON c.commentable_id = ct.id
+        )
+        SELECT *
+        from comment_tree;
+      SQL
+
+    Comment.find_by_sql(sql)
+  end
+
+end
