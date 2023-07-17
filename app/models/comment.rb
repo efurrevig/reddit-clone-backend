@@ -10,6 +10,7 @@
 #  created_at            :datetime         not null
 #  updated_at            :datetime         not null
 #  like_count            :integer          default(0), not null
+#  comment_count         :integer          default(0), not null
 #
 
 class Comment < ApplicationRecord

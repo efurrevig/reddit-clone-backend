@@ -13,6 +13,7 @@
 #  updated_at         :datetime         not null
 #  is_deleted?        :boolean          default(FALSE)
 #  like_count         :integer          default(0), not null
+#  comment_count      :integer          default(0), not null
 #
 
 
@@ -45,22 +46,26 @@ class Post < ApplicationRecord
     case sorted_by
     when 'hot'
       return Post
-        .select('posts.*')
+        .select('posts.*, communities.name as community_name, users.username as author')
+        .joins(:community, :user)
         .where('posts.community_id = ?', community_id)
         .order('posts.vote_count DESC')
     when 'new'
       return Post
-        .select('posts.*')
+        .select('posts.*, communities.name as community_name, users.username as author')
+        .joins(:community, :user)
         .where('posts.community_id = ?', community_id)
         .order('posts.created_at DESC')
     when 'top'
       return Post
-        .select('posts.*')
+        .select('posts.*, communities.name as community_name, users.username as author')
+        .joins(:community, :user)
         .where('posts.community_id = ?', community_id)
         .order('posts.vote_count DESC')
     else
       return Post
-        .select('posts.*')
+        .select('posts.*, communities.name as community_name, users.username as author')
+        .joins(:community, :user)
         .where('posts.community_id = ?', community_id)
         .order('posts.vote_count DESC')
     end
@@ -78,24 +83,28 @@ class Post < ApplicationRecord
     ))
     case sorted_by
     when 'hot'
-      return Post.joins(vote_join.to_sql)
+      return Post.select('posts.*, votes.value as vote_value, communities.name as community_name, users.username as author')
+        .joins(vote_join.to_sql)
+        .joins(:community, :user)
         .where(community_id: community_id)
-        .select('posts.*, votes.value as vote_value')
         .order('posts.vote_count DESC')
     when 'new'
-      return Post.joins(vote_join.to_sql)
+      return Post.select('posts.*, votes.value as vote_value, communities.name as community_name, users.username as author')
+        .joins(vote_join.to_sql)
+        .joins(:community, :user)
         .where(community_id: community_id)
-        .select('posts.*, votes.value as vote_value')
         .order('posts.created_at DESC')
     when 'top'
-      return Post.joins(vote_join.to_sql)
+      return Post.select('posts.*, votes.value as vote_value, communities.name as community_name, users.username as author')
+        .joins(vote_join.to_sql)
+        .joins(:community, :user)
         .where(community_id: community_id)
-        .select('posts.*, votes.value as vote_value')
         .order('posts.vote_count DESC')
     else
-      return Post.joins(vote_join.to_sql)
+      return Post.select('posts.*, votes.value as vote_value, communities.name as community_name, users.username as author')
+        .joins(vote_join.to_sql)
+        .joins(:community, :user)
         .where(community_id: community_id)
-        .select('posts.*, votes.value as vote_value')
         .order('posts.vote_count DESC')
     end
   end
@@ -121,14 +130,16 @@ class Post < ApplicationRecord
     )
     case sorted_by
     when 'hot'
-      return Post.joins(sub_join.to_sql)
+      return Post.select('posts.*, votes.value as vote_value, communities.name as community_name, users.username as author')
+        .joins(sub_join.to_sql)
         .joins(vote_join.to_sql)
-        .select('posts.*, votes.value as vote_value')
+        .joins(:community, :user)
         .order('posts.vote_count DESC')
     else
-      return Post.joins(sub_join.to_sql)
+      return Post.select('posts.*, votes.value as vote_value, communities.name as community_name, users.username as author')
+        .joins(sub_join.to_sql)
         .joins(vote_join.to_sql)
-        .select('posts.*, votes.value as vote_value')
+        .joins(:community, :user)
         .order('posts.vote_count DESC')
     end
   end
@@ -137,7 +148,7 @@ class Post < ApplicationRecord
   def self.fetch_home_posts_without_user(sorted_by, page = nil)
     case sorted_by
     when 'hot'
-      return Post.order('posts.vote_count DESC').limit(30)
+      return Post.select('posts.*, communities.name as community_name, users.username as author').joins(:community, :user).order('posts.vote_count DESC').limit(30)
     else
       return Post.order('posts.vote_count DESC').limit(30)
     end
