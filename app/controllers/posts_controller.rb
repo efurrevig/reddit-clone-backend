@@ -96,14 +96,18 @@ class PostsController < ApplicationController
 
     #GET /api/communities/:community_id/posts/:id
     def show
-        post = Post.includes(comments: [:user, :comments, :votes])
-            .find(params[:id])
-        post_comments = pack_comments(post.comments)
+        if current_user != nil
+            post = Post.fetch_post_with_user(params[:id], current_user.id)
+            comments = post.get_post_comments_with_user(params[:sorted_by], current_user.id)
+        else
+            post = Post.select('posts.*, users.username as author').joins(:user).where(id: params[:id]).first
+            comments = post.get_post_comments_without_user(params[:sorted_by])
+        end
         render json: {
             status: {
                 code: 200
             },
-            data: { post: post, comments: post_comments }
+            data: { post: post, comments: comments.to_json }
         }
     rescue ActiveRecord::RecordNotFound
         head 404
@@ -229,39 +233,4 @@ class PostsController < ApplicationController
     end
 
 
-    #generating comment tree, probably not the best way to do it
-    #but it works for now, will refactor later
-    def pack_comments(comments)
-        comments.map do |comment|
-          {
-            id: comment.id,
-            body: comment.body,
-            username: comment.user.username,
-            commentable_id: comment.commentable_id,
-            commentable_type: comment.commentable_type,
-            level: 0,
-            vote_count: comment.vote_count,
-            voted: current_user == nil ? 0 : comment.votes.find_by(user_id: current_user.id).value || 0,
-            comments: pack_comments(comment.comments)
-          }
-        end
-    end
-
-    def pack_posts(posts)
-        posts.map do |post|
-            vote = current_user == nil ? nil : post.votes.find_by(user_id: current_user.id)
-            {
-                id: post.id,
-                title: post.title,
-                body: post.body,
-                post_type: post.post_type,
-                media_url: post.media_url,
-                username: post.user.username,
-                community_id: post.community_id,
-                vote_count: post.vote_count,
-                voted: vote == nil ? 0 : vote.value,
-                is_deleted?: post.is_deleted?,
-            }
-        end
-    end
 end

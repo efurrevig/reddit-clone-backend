@@ -154,33 +154,58 @@ class Post < ApplicationRecord
     end
   end
 
-  def self.fetch_post_comments_without_user(sorted_by)
+  def get_post_comments_without_user(sorted_by)
     case sorted_by
-    when 'hot'
-      return Post.select('posts.*, comments.*')
-        .joins(:comments)
+    when 'top'
+      return Comment.select('comments.*, users.username as author')
+        .joins(:user)
+        .where(root_id: self.id)
+        .order('depth ASC, vote_count DESC')
+    else 
+      return Comment.select('comments.*, users.username as author')
+        .joins(:user)
+        .where(root_id: self.id)
+        .order('depth ASC, vote_count DESC')
     end
   end
 
-  def get_comments_with_children
-    parent_id = self.id
-    sql =
-      <<-SQL
-        WITH RECURSIVE comment_tree AS (
-          SELECT c.commentable_id, c.id
-          FROM comments c
-          WHERE c.commentable_id = #{parent_id}
-          
-          UNION
-            SELECT c.commentable_id, c.id
-            FROM comments c
-            JOIN comment_tree ct ON c.commentable_id = ct.id
-        )
-        SELECT *
-        from comment_tree;
-      SQL
-
-    Comment.find_by_sql(sql)
+  def get_post_comments_with_user(sorted_by, user_id)
+    comments_table = Comment.arel_table
+    votes_table = Vote.arel_table
+    votes_join = Arel::Nodes::OuterJoin.new(
+      votes_table,
+      Arel::Nodes::On.new(
+        votes_table[:votable_id].eq(comments_table[:id]).and(votes_table[:user_id].eq(user_id))
+      )
+    )
+    case sorted_by
+    when 'top'
+      return Comment.select('comments.*, users.username as author, votes.value as vote_value')
+        .joins(:user)
+        .joins(votes_join.to_sql)
+        .where(root_id: self.id)
+        .order('depth ASC, vote_count DESC')
+    else 
+      return Comment.select('comments.*, users.username as author').joins(:user).where(root_id: self.id).order('depth ASC, vote_count DESC')
+    end
   end
+
+  def self.fetch_post_with_user(post_id, user_id)
+    posts_table = Post.arel_table
+    votes_table = Vote.arel_table
+    vote_join = Arel::Nodes::OuterJoin.new(
+      votes_table,
+      Arel::Nodes::On.new(
+        votes_table[:votable_id].eq(posts_table[:id]).and(votes_table[:user_id].eq(user_id))
+      )
+    )
+    return Post.select('posts.*, votes.value as vote_value, users.username as author')
+      .joins(vote_join.to_sql)
+      .joins(:user)
+      .where(id: post_id)
+      .first
+  end
+
+
 
 end

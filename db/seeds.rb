@@ -61,7 +61,8 @@ comments = []
         commentable_type: 'Post',
         commentable_id: post.id,
         body: 'This is a comment',
-        root_id: post.id
+        root_id: post.id,
+        depth: 0
     )
     comments.each do |comment|
         temp << Comment.create(
@@ -69,7 +70,8 @@ comments = []
             commentable_type: 'Comment',
             commentable_id: comment.id,
             body: 'This is a comment',
-            root_id: post.id
+            root_id: post.id,
+            depth: comment.depth + 1
         )
     end
     comments = temp

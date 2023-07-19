@@ -21,10 +21,13 @@ class CommentsController < ApplicationController
     def create
         commentable = params[:comment][:commentable_type].constantize.find(params[:comment][:commentable_id])
         comment = commentable.comments.build(comment_params)
+        comment.user_id = current_user.id
         if commentable.class == Post
             comment.root_id = commentable.id
+            comment.depth = 0
         else
             comment.root_id = commentable.root_id
+            comment.depth = commentable.depth + 1
         end
        #comment.user_id = current_user.id
         if comment.save

@@ -21,6 +21,9 @@ class Comment < ApplicationRecord
 
   validates :body, presence: true
   validates :user_id, presence: true
+  validates :commentable_id, presence: true
+  validates :commentable_type, presence: true
+  validates :root_id, presence: true
 
   validates :commentable_type, presence: true, inclusion: { in: %w(Post Comment) }
   validates :commentable, presence: true
