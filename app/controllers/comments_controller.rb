@@ -76,9 +76,11 @@ class CommentsController < ApplicationController
 
     def vote_comment(direction)
         vote = Vote.find_or_initialize_by(votable_type: "Comment", votable_id: params[:id], user_id: current_user.id)
+        vote.prev_value = vote.value
         vote.value = (vote.value == direction ? 0 : direction)
+        
         if vote.save
-            head 204
+            head 200
         else
             render json: {
                 status: {

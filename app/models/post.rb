@@ -184,9 +184,13 @@ class Post < ApplicationRecord
         .joins(:user)
         .joins(votes_join.to_sql)
         .where(root_id: self.id)
-        .order('depth ASC, vote_count DESC')
+        .order('depth ASC, vote_count ASC')
     else 
-      return Comment.select('comments.*, users.username as author').joins(:user).where(root_id: self.id).order('depth ASC, vote_count DESC')
+      return Comment.select('comments.*, users.username as author, votes.value as vote_value')
+        .joins(:user)
+        .joins(votes_join.to_sql)
+        .where(root_id: self.id)
+        .order('depth ASC, vote_count ASC')
     end
   end
 
