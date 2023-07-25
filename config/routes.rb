@@ -16,8 +16,10 @@ Rails.application.routes.draw do
     get '/users/:user_id/posts', to: 'posts#user_posts'
     resources :communities do
       resources :subscribers
-      resources :posts
+      resources :posts, except: [:show]
     end
+
+    get '/posts/:id', to: 'posts#show'
 
     post '/posts/:id/upvote', to: 'posts#upvote'
     post '/posts/:id/downvote', to: 'posts#downvote'
