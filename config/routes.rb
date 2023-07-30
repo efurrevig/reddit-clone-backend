@@ -19,6 +19,8 @@ Rails.application.routes.draw do
       resources :posts, except: [:show]
     end
 
+    get '/communities/search/:q', to: 'communities#search'
+
     get '/posts/:id', to: 'posts#show'
 
     post '/posts/:id/upvote', to: 'posts#upvote'

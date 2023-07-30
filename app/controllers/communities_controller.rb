@@ -42,6 +42,23 @@ class CommunitiesController < ApplicationController
         end
     end
 
+    def search
+        @communities = Community.where("name LIKE ?", "%#{params[:q]}%").limit(5)
+        render json: {
+            status: {
+                code: 200
+            },
+            data: @communities
+        }
+    rescue ActiveRecord::RecordNotFound
+        render json: {
+            status: {
+                code: 200
+            },
+            data: []
+        }, status: 200
+    end
+
     def destroy
         @community = Community.find(params[:id])
 

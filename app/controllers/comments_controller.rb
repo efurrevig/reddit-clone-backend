@@ -70,7 +70,7 @@ class CommentsController < ApplicationController
 
     #DELETE /api/comments/:id
     def destroy
-        @comment.update!(is_deleted?: true)
+        @comment.update!(is_deleted: true)
         head :no_content
     end
 
