@@ -112,4 +112,7 @@ RSpec.describe CommunitiesController, type: :request do
         end
       end
     end
+    describe 'GET #search' do
+      
+    end
   end

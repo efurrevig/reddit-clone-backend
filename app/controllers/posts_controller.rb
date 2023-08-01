@@ -10,16 +10,14 @@ class PostsController < ApplicationController
             posts = Post.fetch_posts_without_user(params[:sorted_by], params[:community_id])
         end
 
-        if posts.length > 0
-            render json: {
-                status: {
-                    code: 200
-                },
-                data: posts
-            }
-        else
-            head 204
-        end
+
+        render json: {
+            status: {
+                code: 200
+            },
+            data: posts
+        }
+
 
     rescue ActiveRecord::RecordNotFound
         head 404
@@ -35,16 +33,14 @@ class PostsController < ApplicationController
         else
             posts = Post.fetch_home_posts_without_user(sorted_by, page)
         end
-        if posts.length > 0
-            render json: {
-                status: {
-                    code: 200
-                },
-                data: posts
-            }
-        else
-            head 204
-        end
+
+        render json: {
+            status: {
+                code: 200
+            },
+            data: posts
+        }
+ 
     end
 
     def community_posts
@@ -58,16 +54,14 @@ class PostsController < ApplicationController
             posts = Post.fetch_posts_without_user(sorted_by, community_id)
         end
 
-        if posts.length > 0
-            render json: {
-                status: {
-                    code: 200
-                },
-                data: posts
-            }
-        else
-            head 204
-        end
+        render json: {
+            status: {
+                code: 200
+            },
+            data: posts
+        }
+
+
 
     rescue ActiveRecord::RecordNotFound
         head 404

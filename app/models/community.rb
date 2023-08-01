@@ -11,6 +11,7 @@
 
 class Community < ApplicationRecord
     validates :name, length: { minimum: 3 }
+    validates :name, uniqueness: true
 
     has_many :subscribers
     has_many :posts
