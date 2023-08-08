@@ -43,7 +43,7 @@ class CommunitiesController < ApplicationController
     end
 
     def search
-        @communities = Community.where("name LIKE ?", "%#{params[:q]}%").limit(5)
+        @communities = Community.where("lower(name) LIKE ?", "%#{params[:q].downcase}%").limit(5)
         render json: {
             status: {
                 code: 200

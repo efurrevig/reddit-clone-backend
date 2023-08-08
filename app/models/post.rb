@@ -79,7 +79,9 @@ class Post < ApplicationRecord
     vote_join = Arel::Nodes::OuterJoin.new(
       votes_table,
       Arel::Nodes::On.new(
-        votes_table[:votable_id].eq(posts_table[:id]).and(votes_table[:user_id].eq(user_id))
+        votes_table[:votable_id].eq(posts_table[:id])
+          .and(votes_table[:user_id].eq(user_id))
+          .and(votes_table[:votable_type].eq("Post"))
     ))
     case sorted_by
     when 'hot'
@@ -125,7 +127,9 @@ class Post < ApplicationRecord
     vote_join = Arel::Nodes::OuterJoin.new(
       votes_table,
       Arel::Nodes::On.new(
-        votes_table[:votable_id].eq(posts_table[:id]).and(votes_table[:user_id].eq(user_id))
+        votes_table[:votable_id].eq(posts_table[:id])
+          .and(votes_table[:user_id].eq(user_id))
+          .and(votes_table[:votable_type].eq("Post")
       )
     )
     case sorted_by
@@ -175,7 +179,9 @@ class Post < ApplicationRecord
     votes_join = Arel::Nodes::OuterJoin.new(
       votes_table,
       Arel::Nodes::On.new(
-        votes_table[:votable_id].eq(comments_table[:id]).and(votes_table[:user_id].eq(user_id))
+        votes_table[:votable_id].eq(comments_table[:id])
+          .and(votes_table[:user_id].eq(user_id))
+          .and(votes_table[:votable_type].eq("Comment"))
       )
     )
     case sorted_by
@@ -200,7 +206,9 @@ class Post < ApplicationRecord
     vote_join = Arel::Nodes::OuterJoin.new(
       votes_table,
       Arel::Nodes::On.new(
-        votes_table[:votable_id].eq(posts_table[:id]).and(votes_table[:user_id].eq(user_id))
+        votes_table[:votable_id].eq(posts_table[:id])
+          .and(votes_table[:user_id].eq(user_id)
+          .and(votes_table[:votable_type].eq("Post"))
       )
     )
     return Post.select('posts.*, votes.value as vote_value, users.username as author')

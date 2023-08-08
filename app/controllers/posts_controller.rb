@@ -88,7 +88,8 @@ class PostsController < ApplicationController
 
     end
 
-    #GET /api/communities/:community_id/posts/:id
+    #GET /api/communities/:community_id/posts/:id ???
+    #get '/posts/:id'
     def show
         if current_user != nil
             post = Post.fetch_post_with_user(params[:id], current_user.id)
@@ -96,6 +97,9 @@ class PostsController < ApplicationController
         else
             post = Post.select('posts.*, users.username as author').joins(:user).where(id: params[:id]).first
             comments = post.get_post_comments_without_user(params[:sorted_by])
+        end
+        comments.each do |comment|
+            puts comment.id
         end
         render json: {
             status: {
