@@ -129,7 +129,7 @@ class Post < ApplicationRecord
       Arel::Nodes::On.new(
         votes_table[:votable_id].eq(posts_table[:id])
           .and(votes_table[:user_id].eq(user_id))
-          .and(votes_table[:votable_type].eq("Post")
+          .and(votes_table[:votable_type].eq("Post"))
       )
     )
     case sorted_by
@@ -207,7 +207,7 @@ class Post < ApplicationRecord
       votes_table,
       Arel::Nodes::On.new(
         votes_table[:votable_id].eq(posts_table[:id])
-          .and(votes_table[:user_id].eq(user_id)
+          .and(votes_table[:user_id].eq(user_id))
           .and(votes_table[:votable_type].eq("Post"))
       )
     )
