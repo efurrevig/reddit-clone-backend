@@ -38,7 +38,7 @@ Rails.application.routes.draw do
     get '/communities/:community_id/posts/:sorted_by', to: 'posts#community_posts'
 
     #home post routes (all subscribed community posts if logged in or all posts if not logged in)
-    get '/home/posts/:sorted_by', to: 'posts#home_posts'
+    get '/posts/:feed/:sorted_by', to: 'posts#feed_posts'
 
 
   end

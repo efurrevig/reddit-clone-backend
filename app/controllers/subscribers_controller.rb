@@ -23,7 +23,7 @@ class SubscribersController < ApplicationController
                 status: {
                     code:  200,
                     data: subscriber
-                }
+                }, status: 200
             }
         else
             render json: {

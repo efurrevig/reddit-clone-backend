@@ -23,15 +23,26 @@ class PostsController < ApplicationController
         head 404
     end
 
-    def home_posts
-        get_home_posts(params[:sorted_by])
+    # get '/home/posts/:feed/:sorted_by'
+    def feed_posts
+        get_feed_posts(params[:feed], params[:sorted_by])
     end
 
-    def get_home_posts(sorted_by, page = nil)
-        if current_user != nil
-            posts = Post.fetch_home_posts_with_user(sorted_by, current_user.id, page)
+    def get_feed_posts(feed, sorted_by, page = nil)
+        case feed
+            
+        when "home"
+            if current_user != nil
+                posts = Post.fetch_home_posts_with_user(sorted_by, current_user.id, page)
+            else
+                posts = Post.fetch_home_posts_without_user(sorted_by, page)
+            end
+        when "popular"
+            posts = []
+        when "all"
+            posts = []
         else
-            posts = Post.fetch_home_posts_without_user(sorted_by, page)
+            posts = []
         end
 
         render json: {
@@ -40,14 +51,14 @@ class PostsController < ApplicationController
             },
             data: posts
         }
- 
+  
     end
 
     def community_posts
-        fetch_posts(params[:sorted_by], params[:community_id])
+        fetch_community_posts(params[:sorted_by], params[:community_id])
     end
 
-    def fetch_posts(sorted_by, community_id)
+    def fetch_community_posts(sorted_by, community_id)
         if current_user != nil
             posts = Post.fetch_posts_with_user(sorted_by, community_id, current_user.id)
         else
@@ -60,8 +71,6 @@ class PostsController < ApplicationController
             },
             data: posts
         }
-
-
 
     rescue ActiveRecord::RecordNotFound
         head 404
