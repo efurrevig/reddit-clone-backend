@@ -35,11 +35,15 @@ RSpec.describe SubscribersController, type: :request do
                 let!(:initial_subscribers) { Subscriber.count }
 
                 before do
-                    subscribe_to_community(user, community, auth_header)
+                    subscribe_to_community(community, auth_header)
                 end
 
                 it 'should return status 200' do
                     expect(response.status).to eq(200)
+                end
+
+                it 'should return the subscription' do
+                    expect(JSON.parse(response.body)['status']['data']['user_id']).to eq(user.id)
                 end
 
                 it 'should add a subscriber' do
@@ -59,27 +63,10 @@ RSpec.describe SubscribersController, type: :request do
                 end
             end
 
-            context 'when the user_id is wrong' do
-                let!(:initial_subscribers) { Subscriber.count }
-                let(:wrong_user) { create(:user) }
-
-                before do
-                    subscribe_to_community(wrong_user, community, auth_header)
-                end
-
-                it 'should return status 422' do
-                    expect(response.status).to be(422)
-                end
-
-                it 'should not create a subscriber' do
-                    expect(Subscriber.count).to eq(initial_subscribers)
-                end
-            end
-
             context 'when the user is already subscribed' do
                 before do
                     create(:subscriber, community: community, user: user)
-                    subscribe_to_community(user, community, auth_header)
+                    subscribe_to_community(community, auth_header)
                 end
 
                 it 'should return status 422' do
@@ -95,11 +82,7 @@ RSpec.describe SubscribersController, type: :request do
         context 'when the user is not logged in' do
             let(:user) { create(:user) }
             before do
-                post request_url, params: {
-                    subscriber: {
-                        user_id: user.id
-                    }
-                }
+                post request_url
             end
 
             it 'should return status 401' do

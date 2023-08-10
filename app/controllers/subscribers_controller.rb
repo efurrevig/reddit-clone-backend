@@ -15,21 +15,21 @@ class SubscribersController < ApplicationController
     end
 
     def create
-        @community = Community.find(params[:community_id])
-        @subscriber = @community.subscribers.build(subscriber_params)
+        community = Community.find(params[:community_id])
+        subscriber = community.subscribers.build(user_id: current_user.id)
 
-        if current_user.id == subscriber_params[:user_id].to_i && @subscriber.save
+        if subscriber.save
             render json: {
                 status: {
                     code:  200,
-                    message: "Successfully subscribed to #{@community.name}"
+                    data: subscriber
                 }
             }
         else
             render json: {
                 status: {
                     code: 422,
-                    message: @subscriber.errors.messages
+                    message: subscriber.errors.messages
                 }
             }, status: 422
         end
@@ -82,7 +82,7 @@ class SubscribersController < ApplicationController
     end
 
     def subscriber_params
-        params.require(:subscriber).permit(:user_id, :community_id)
+        params.require(:subscriber).permit(:community_id)
     end
 
     def status_params
