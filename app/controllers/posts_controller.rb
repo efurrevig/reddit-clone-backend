@@ -30,7 +30,7 @@ class PostsController < ApplicationController
 
     def get_feed_posts(feed, sorted_by, page = nil)
         case feed
-            
+
         when "home"
             if current_user != nil
                 posts = Post.fetch_home_posts_with_user(sorted_by, current_user.id, page)
@@ -38,7 +38,7 @@ class PostsController < ApplicationController
                 posts = Post.fetch_home_posts_without_user(sorted_by, page)
             end
         when "popular"
-            posts = []
+            posts = Post.fetch_popular_posts_with_user(sorted_by, current_user.id, page)
         when "all"
             posts = []
         else

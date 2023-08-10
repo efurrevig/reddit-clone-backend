@@ -158,6 +158,42 @@ class Post < ApplicationRecord
     end
   end
 
+  def self.fetch_popular_posts_with_user(sorted_by, user_id, page)
+    posts_table = Post.arel_table
+    votes_table = Vote.arel_table
+    subscriber_table = Subscriber.arel_table
+
+    votes_join = Arel::Nodes::OuterJoin.new(
+      votes_table,
+      Arel::Nodes::On.new(
+        votes_table[:votable_id].eq(posts_table[:id])
+          .and(votes_table[:user_id].eq(user_id))
+          .and(votes_table[:votable_type].eq("Post"))
+      )
+    )
+    subs_join = Arel::Nodes::OuterJoin.new(
+      subscriber_table,
+      Arel::Nodes::On.new(
+        subscriber_table[:community_id].eq(posts_table[:community_id])
+          .and(subscriber_table[:user_id].eq(user_id))
+      )
+    )
+    case sorted_by
+    when 'top'
+      return Post.select('posts.*, votes.value as vote_value, communities.name as community_name, users.username as author, subscribers.status as subscription_status')
+        .joins(votes_join.to_sql)
+        .joins(subs_join.to_sql)
+        .joins(:community, :user)
+        .order('posts.vote_count DESC')
+    else
+      return Post.select('posts.*, votes.value as vote_value, communities.name as community_name, users.username as author, subscribers.status as subscription_status')
+        .joins(votes_join.to_sql)
+        .joins(subs_join.to_sql)
+        .joins(:community, :user)
+        .order('posts.vote_count DESC')
+    end
+  end
+
   def get_post_comments_without_user(sorted_by)
     case sorted_by
     when 'top'
