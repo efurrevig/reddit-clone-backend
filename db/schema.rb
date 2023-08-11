@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_07_19_001855) do
+ActiveRecord::Schema[7.0].define(version: 2023_08_11_184908) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -56,7 +56,10 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_19_001855) do
     t.boolean "is_deleted", default: false
     t.integer "vote_count", default: 0, null: false
     t.integer "comment_count", default: 0, null: false
+    t.integer "score", default: 0, null: false
     t.index ["community_id"], name: "index_posts_on_community_id"
+    t.index ["created_at"], name: "index_posts_on_created_at"
+    t.index ["score"], name: "index_posts_on_score"
     t.index ["user_id"], name: "index_posts_on_user_id"
   end
 
@@ -96,6 +99,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_19_001855) do
     t.datetime "updated_at", null: false
     t.integer "prev_value", default: 0, null: false
     t.index ["user_id"], name: "index_votes_on_user_id"
+    t.index ["votable_id"], name: "index_votes_on_votable_id"
     t.index ["votable_type", "votable_id"], name: "index_votes_on_votable"
   end
 

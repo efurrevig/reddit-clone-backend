@@ -12,7 +12,7 @@
 #  created_at         :datetime         not null
 #  updated_at         :datetime         not null
 #  is_deleted?        :boolean          default(FALSE)
-#  like_count         :integer          default(0), not null
+#  vote_count         :integer          default(0), not null
 #  comment_count      :integer          default(0), not null
 #
 
@@ -36,10 +36,39 @@ class Post < ApplicationRecord
     self.save!
   end
 
+  def update_score(value)
+    self.score = [get_score_value(value)+self.score, 0].max
+    self.save!
+  end
+
   def update_comment_count(value)
     self.comment_count += value
     self.save!
   end
+
+  def epoch_date(date)
+    td = Time.now - date
+    return td.days * 86400 + td.seconds
+  end
+
+  def time_degree(time)
+    some_const = (10**(-16) * time).to_f
+    return (1 + Math.exp(-some_const)).round(7)
+  end
+
+  def like_degree(likes)
+    some_const = 0.1 * likes
+    return 1 + (999 * Math.exp(-some_const)).round(7)
+  end
+  #value of votes is higher when the post is newer and has less votes. the first vote is worth 
+  def get_score_value(value)
+    time = epoch_date(self.created_at) - 1134028003
+    time_degree = time_degree(time)
+    likes = self.vote_count + value
+    like_degree = like_degree(likes)
+    return (time_degree * like_degree).round(7) * value
+  end
+
 
   # NOT LOGGED IN, returns posts for a community
   def self.fetch_posts_without_user(sorted_by, community_id, page = nil)
@@ -158,7 +187,7 @@ class Post < ApplicationRecord
     end
   end
 
-  def self.fetch_popular_posts_with_user(sorted_by, user_id, page)
+  def self.fetch_popular_posts_with_user(sorted_by, user_id)
     posts_table = Post.arel_table
     votes_table = Vote.arel_table
     subscriber_table = Subscriber.arel_table

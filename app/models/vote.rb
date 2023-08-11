@@ -18,11 +18,14 @@ class Vote < ApplicationRecord
     validates :user_id, uniqueness: { scope: [:votable_type, :votable_id] }
     validates :value, presence: true, inclusion: { in: [-1, 0, 1] }
 
-    after_create :update_votable_vote_count
-    after_update :update_votable_vote_count
+    after_create :update_votable
+    after_update :update_votable
 
-    def update_votable_vote_count
+    def update_votable
         change = self.value == 0 ? self.prev_value*-1 : self.value - self.prev_value
         votable.update_vote_count(change)
+        if votable.is_a?(Post)
+            votable.update_score(change)
+        end
     end
 end
