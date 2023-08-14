@@ -25,10 +25,10 @@ class PostsController < ApplicationController
 
     # get '/home/posts/:feed/:sorted_by'
     def feed_posts
-        get_feed_posts(params[:feed], params[:sorted_by])
+        get_feed_posts(params[:feed], params[:sorted_by], params[:page])
     end
 
-    def get_feed_posts(feed, sorted_by, page = nil)
+    def get_feed_posts(feed, sorted_by, page = 1)
         case feed
 
         when "home"
