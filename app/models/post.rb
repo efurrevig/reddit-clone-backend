@@ -191,6 +191,8 @@ class Post < ApplicationRecord
         .joins(vote_join.to_sql)
         .joins(:community, :user)
         .order('posts.score DESC, posts.id DESC')
+        .limit(10)
+        .offset(offset)
     when 'new'
       return Post.select('posts.*, votes.value as vote_value, communities.name as community_name, users.username as author')
         # .joins(sub_join.to_sql)
@@ -213,6 +215,8 @@ class Post < ApplicationRecord
         .joins(vote_join.to_sql)
         .joins(:community, :user)
         .order('posts.score DESC, posts.id DESC')
+        .limit(10)
+        .offset(offset)
     end
   end
 
@@ -225,6 +229,7 @@ class Post < ApplicationRecord
         .joins(:community, :user)
         .order('posts.score DESC')
         .limit(10)
+        .offset(offset)
     else
       return Post.order('posts.score DESC').limit(10).offset(offset)
     end

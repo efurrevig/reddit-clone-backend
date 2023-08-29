@@ -25,8 +25,12 @@ class PostsController < ApplicationController
 
     # get '/home/posts/:feed/:sorted_by/:page'
     def feed_posts
-        page = params[:page].to_i ? params[:page].to_i : 1
-        get_feed_posts(params[:feed], params[:sorted_by], page)
+        if params[:page] == nil
+            page = 1
+        else
+            page = params[:page].to_i
+        end
+        get_feed_posts(params[:feed].downcase, params[:sorted_by], page)
     end
 
     def get_feed_posts(feed, sorted_by, page = 1)
@@ -56,7 +60,7 @@ class PostsController < ApplicationController
     end
 
     def community_posts
-        fetch_community_posts(params[:sorted_by], params[:community_id], params[:page].to_i)
+        fetch_community_posts(params[:sorted_by].downcase, params[:community_id], params[:page].to_i)
     end
 
     def fetch_community_posts(sorted_by, community_id, page)

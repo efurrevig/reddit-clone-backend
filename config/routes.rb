@@ -40,7 +40,7 @@ Rails.application.routes.draw do
 
 
     #home post routes (all subscribed community posts if logged in or all posts if not logged in)
-    get '/posts/:feed/:sorted_by', to: 'posts#feed_posts'
+    get '/posts/:feed/:sorted_by/:page', to: 'posts#feed_posts'
 
 
   end
