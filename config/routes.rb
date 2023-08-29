@@ -20,6 +20,10 @@ Rails.application.routes.draw do
     end
 
     get '/communities/search/:q', to: 'communities#search'
+    #community posts
+    get '/communities/:community_id/posts/:sorted_by/:page', to: 'posts#community_posts'
+    #user subscribed communities
+    get '/communities/subscribed', to: 'communities#user_subscribed_communities'
 
     get '/posts/:id', to: 'posts#show'
 
@@ -34,8 +38,6 @@ Rails.application.routes.draw do
     post '/comments/:comment_id/comments', to: 'comments#create'
 
 
-    #community post routes
-    get '/communities/:community_id/posts/:sorted_by/:page', to: 'posts#community_posts'
 
     #home post routes (all subscribed community posts if logged in or all posts if not logged in)
     get '/posts/:feed/:sorted_by', to: 'posts#feed_posts'

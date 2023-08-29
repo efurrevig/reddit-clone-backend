@@ -23,9 +23,10 @@ class PostsController < ApplicationController
         head 404
     end
 
-    # get '/home/posts/:feed/:sorted_by'
+    # get '/home/posts/:feed/:sorted_by/:page'
     def feed_posts
-        get_feed_posts(params[:feed], params[:sorted_by], params[:page])
+        page = params[:page].to_i ? params[:page].to_i : 1
+        get_feed_posts(params[:feed], params[:sorted_by], page)
     end
 
     def get_feed_posts(feed, sorted_by, page = 1)
@@ -55,14 +56,14 @@ class PostsController < ApplicationController
     end
 
     def community_posts
-        fetch_community_posts(params[:sorted_by], params[:community_id])
+        fetch_community_posts(params[:sorted_by], params[:community_id], params[:page].to_i)
     end
 
-    def fetch_community_posts(sorted_by, community_id)
+    def fetch_community_posts(sorted_by, community_id, page)
         if current_user != nil
-            posts = Post.fetch_posts_with_user(sorted_by, community_id, current_user.id)
+            posts = Post.fetch_community_posts_with_user(sorted_by, community_id, current_user.id, page)
         else
-            posts = Post.fetch_posts_without_user(sorted_by, community_id)
+            posts = Post.fetch_community_posts_without_user(sorted_by, community_id, page)
         end
 
         render json: {
@@ -107,9 +108,7 @@ class PostsController < ApplicationController
             post = Post.select('posts.*, users.username as author').joins(:user).where(id: params[:id]).first
             comments = post.get_post_comments_without_user(params[:sorted_by])
         end
-        comments.each do |comment|
-            puts comment.id
-        end
+        
         render json: {
             status: {
                 code: 200

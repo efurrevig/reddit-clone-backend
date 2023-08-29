@@ -76,6 +76,8 @@ class SubscribersController < ApplicationController
 
     end
 
+
+
     private
     def set_subscriber
         @subscriber = Subscriber.find(params[:id])

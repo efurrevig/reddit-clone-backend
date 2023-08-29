@@ -15,4 +15,5 @@ class Community < ApplicationRecord
 
     has_many :subscribers
     has_many :posts
+
 end

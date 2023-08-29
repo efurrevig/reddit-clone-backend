@@ -59,6 +59,19 @@ class CommunitiesController < ApplicationController
         }, status: 200
     end
 
+    def user_subscribed_communities
+
+        communities = current_user ? current_user.communities : []
+
+        render json: {
+            status: {
+                code: 200
+            },
+            data: communities
+        }, status: 200
+
+    end
+
     def destroy
         @community = Community.find(params[:id])
 

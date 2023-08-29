@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_08_14_192945) do
+ActiveRecord::Schema[7.0].define(version: 2023_08_16_212945) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -100,7 +100,6 @@ ActiveRecord::Schema[7.0].define(version: 2023_08_14_192945) do
     t.integer "prev_value", default: 0, null: false
     t.index ["user_id"], name: "index_votes_on_user_id"
     t.index ["votable_id"], name: "index_votes_on_votable_id"
-    t.index ["votable_type", "votable_id", "user_id"], name: "index_votes_on_votable"
   end
 
   add_foreign_key "comments", "users"

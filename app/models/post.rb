@@ -72,7 +72,7 @@ class Post < ApplicationRecord
 
 
   # NOT LOGGED IN, returns posts for a community
-  def self.fetch_posts_without_user(sorted_by, community_id, page = 1)
+  def self.fetch_community_posts_without_user(sorted_by, community_id, page = 1)
     offset = (page-1) * 10
     case sorted_by
     when 'hot'
@@ -80,7 +80,7 @@ class Post < ApplicationRecord
         .select('posts.*, communities.name as community_name, users.username as author')
         .joins(:community, :user)
         .where('posts.community_id = ?', community_id)
-        .order('posts.vote_count DESC')
+        .order('posts.score DESC, posts.id DESC')
         .limit(10)
         .offset(offset)
     when 'new'
@@ -88,7 +88,7 @@ class Post < ApplicationRecord
         .select('posts.*, communities.name as community_name, users.username as author')
         .joins(:community, :user)
         .where('posts.community_id = ?', community_id)
-        .order('posts.created_at DESC')
+        .order('posts.created_at DESC, posts.id DESC')
         .limit(10)
         .offset(offset)
     when 'top'
@@ -96,7 +96,7 @@ class Post < ApplicationRecord
         .select('posts.*, communities.name as community_name, users.username as author')
         .joins(:community, :user)
         .where('posts.community_id = ?', community_id)
-        .order('posts.vote_count DESC')
+        .order('posts.vote_count DESC, posts.id DESC')
         .limit(10)
         .offset(offset)
     else
@@ -104,7 +104,7 @@ class Post < ApplicationRecord
         .select('posts.*, communities.name as community_name, users.username as author')
         .joins(:community, :user)
         .where('posts.community_id = ?', community_id)
-        .order('posts.vote_count DESC')
+        .order('posts.score DESC, posts.id DESC')
         .limit(10)
         .offset(offset)
     end
@@ -113,7 +113,7 @@ class Post < ApplicationRecord
   # LOGGED IN returns posts for a community with the vote value (if any) for a user
 
 
-  def self.fetch_posts_with_user(sorted_by, community_id, user_id, page = 1)
+  def self.fetch_community_posts_with_user(sorted_by, community_id, user_id, page = 1)
     offset = (page-1) * 10
     posts_table = Post.arel_table
     votes_table = Vote.arel_table
@@ -124,14 +124,15 @@ class Post < ApplicationRecord
         votes_table[:votable_id].eq(posts_table[:id])
           .and(votes_table[:user_id].eq(user_id))
           .and(votes_table[:votable_type].eq("Post"))
-    ))
+      )
+    )
     case sorted_by
     when 'hot'
       return Post.select('posts.*, votes.value as vote_value, communities.name as community_name, users.username as author')
         .joins(vote_join.to_sql)
         .joins(:community, :user)
         .where(community_id: community_id)
-        .order('posts.score DESC')
+        .order('posts.score DESC, posts.id DESC')
         .limit(10)
         .offset(offset)
     when 'new'
@@ -147,7 +148,7 @@ class Post < ApplicationRecord
         .joins(vote_join.to_sql)
         .joins(:community, :user)
         .where(community_id: community_id)
-        .order('posts.vote_count DESC')
+        .order('posts.vote_count DESC, posts.id DESC')
         .limit(10)
         .offset(offset)
     else
@@ -155,7 +156,9 @@ class Post < ApplicationRecord
         .joins(vote_join.to_sql)
         .joins(:community, :user)
         .where(community_id: community_id)
-        .order('posts.vote_count DESC')
+        .order('posts.vote_count DESC, posts.id DESC')
+        .limit(10)
+        .offset(offset)
     end
   end
 
@@ -184,32 +187,32 @@ class Post < ApplicationRecord
     case sorted_by
     when 'hot'
       return Post.select('posts.*, votes.value as vote_value, communities.name as community_name, users.username as author')
-        .joins(sub_join.to_sql)
+        # .joins(sub_join.to_sql)
         .joins(vote_join.to_sql)
         .joins(:community, :user)
-        .order('posts.score DESC')
+        .order('posts.score DESC, posts.id DESC')
     when 'new'
       return Post.select('posts.*, votes.value as vote_value, communities.name as community_name, users.username as author')
-        .joins(sub_join.to_sql)
+        # .joins(sub_join.to_sql)
         .joins(vote_join.to_sql)
         .joins(:community, :user)
-        .order('posts.created_at DESC')
+        .order('posts.created_at DESC, posts.id DESC')
         .limit(10)
         .offset(offset)
     when 'top'
       return Post.select('posts.*, votes.value as vote_value, communities.name as community_name, users.username as author')
-        .joins(sub_join.to_sql)
+        # .joins(sub_join.to_sql)
         .joins(vote_join.to_sql)
         .joins(:community, :user)
-        .order('posts.vote_count DESC')
+        .order('posts.vote_count DESC, posts.id DESC')
         .limit(10)
         .offset(offset)
     else
       return Post.select('posts.*, votes.value as vote_value, communities.name as community_name, users.username as author')
-        .joins(sub_join.to_sql)
+        # .joins(sub_join.to_sql)
         .joins(vote_join.to_sql)
         .joins(:community, :user)
-        .order('posts.score DESC')
+        .order('posts.score DESC, posts.id DESC')
     end
   end
 
@@ -242,6 +245,7 @@ class Post < ApplicationRecord
           .and(votes_table[:votable_type].eq("Post"))
       )
     )
+    
     subs_join = Arel::Nodes::OuterJoin.new(
       subscriber_table,
       Arel::Nodes::On.new(
