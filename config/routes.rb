@@ -23,7 +23,7 @@ Rails.application.routes.draw do
     #community posts
     get '/communities/:community_id/posts/:sorted_by/:page', to: 'posts#community_posts'
     #user subscribed communities
-    get '/communities/subscribed', to: 'communities#user_subscribed_communities'
+    get '/subscribedcommunities', to: 'communities#user_subscribed_communities'
 
     get '/posts/:id', to: 'posts#show'
 
