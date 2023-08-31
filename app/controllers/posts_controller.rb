@@ -34,8 +34,9 @@ class PostsController < ApplicationController
     end
 
     def get_feed_posts(feed, sorted_by, page = 1)
+        # need to add popular for logged out
+        puts(current_user)
         case feed
-
         when "home"
             if current_user != nil
                 posts = Post.fetch_home_posts_with_user(sorted_by, current_user.id, page)

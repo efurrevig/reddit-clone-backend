@@ -18,7 +18,6 @@
 
 
 class Post < ApplicationRecord
-  attr_accessor :vote_value
   belongs_to :user
   belongs_to :community
   
@@ -273,6 +272,8 @@ class Post < ApplicationRecord
         .joins(subs_join.to_sql)
         .joins(:community, :user)
         .order('posts.score DESC')
+        .limit(20)
+        .offset(offset)
     end
   end
 
