@@ -15,16 +15,15 @@ class SubscribersController < ApplicationController
     end
 
     def create
-        community = Community.find(params[:community_id])
-        subscriber = community.subscribers.build(user_id: current_user.id)
+        subscriber = Subscriber.new(community_id: params[:community_id], user_id: current_user.id, status: :member)
 
         if subscriber.save
             render json: {
                 status: {
                     code:  200,
-                    data: subscriber
-                }, status: 200
-            }
+                },
+                data: subscriber 
+            }, status: 200
         else
             render json: {
                 status: {

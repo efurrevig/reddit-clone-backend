@@ -23,6 +23,9 @@ class CommunitiesController < ApplicationController
 
     def create
         @community = Community.create(community_params)
+        if @community.title == ""
+            @community.title = @community.name
+        end
 
         if @community.save
             render json: {
@@ -72,6 +75,22 @@ class CommunitiesController < ApplicationController
 
     end
 
+    #get '/communities/:community_id/subscribers/subscription'
+    def user_community_subscription
+        subscriber = Subscriber.where(community_id: params[:community_id], user_id: current_user.id).first
+
+        if subscriber
+            render json: {
+                status: {
+                    code: 200
+                },
+                data: subscriber
+            }, status: 200
+        else
+            head 204
+        end
+    end
+
     def destroy
         @community = Community.find(params[:id])
 
@@ -86,6 +105,6 @@ class CommunitiesController < ApplicationController
 
     private
     def community_params
-        params.require(:community).permit(:name)
+        params.require(:community).permit(:name, :title, :description)
     end 
 end

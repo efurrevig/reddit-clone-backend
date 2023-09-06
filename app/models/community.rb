@@ -7,11 +7,13 @@
 #  description      :text             not null
 #  created_at       :datetime         not null
 #  updated_at       :datetime         not null
+#  title            :string           not null
 #
 
 class Community < ApplicationRecord
     validates :name, length: { minimum: 3 }
     validates :name, uniqueness: true
+    validates :title, presence: true
 
     has_many :subscribers
     has_many :posts

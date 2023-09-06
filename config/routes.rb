@@ -22,8 +22,12 @@ Rails.application.routes.draw do
     get '/communities/search/:q', to: 'communities#search'
     #community posts
     get '/communities/:community_id/posts/:sorted_by/:page', to: 'posts#community_posts'
+    #user community subscription
+    get '/communities/:community_id/subscription', to: 'communities#user_community_subscription'
     #user subscribed communities
     get '/subscribedcommunities', to: 'communities#user_subscribed_communities'
+
+
 
     get '/posts/:id', to: 'posts#show'
 
