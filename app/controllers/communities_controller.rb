@@ -77,7 +77,7 @@ class CommunitiesController < ApplicationController
 
     #get '/communities/:community_id/subscribers/subscription'
     def user_community_subscription
-        subscriber = Subscriber.where(community_id: params[:community_id], user_id: current_user.id).first
+        subscriber = current_user ? current_user.subscribers.find_by(community_id: params[:community_id]) : nil
 
         if subscriber
             render json: {
@@ -87,7 +87,7 @@ class CommunitiesController < ApplicationController
                 data: subscriber
             }, status: 200
         else
-            head 204
+            head 404
         end
     end
 
