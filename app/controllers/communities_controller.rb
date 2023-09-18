@@ -77,7 +77,7 @@ class CommunitiesController < ApplicationController
 
     #get '/communities/:community_id/subscribers/subscription'
     def user_community_subscription
-        subscriber = current_user ? current_user.subscribers.find_by(community_id: params[:community_id]) : nil
+        subscriber = current_user ? current_user.subscriptions.find_by(community_id: params[:community_id]) : nil
 
         if subscriber
             render json: {
