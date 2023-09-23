@@ -23,7 +23,7 @@ class CommunitiesController < ApplicationController
 
     def create
         @community = Community.create(community_params)
-        if @community.title == ""
+        if @community.title == "" || @community.title == nil
             @community.title = @community.name
         end
 
