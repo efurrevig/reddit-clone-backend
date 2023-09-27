@@ -191,8 +191,13 @@ class PostsController < ApplicationController
     #DELETE /api/communities/:community_id/posts/:id
     def destroy
         post = Post.find(params[:id])
-        post.update!(is_deleted?: true)
+        post.update!(is_deleted: true)
 
+        render json: {
+            status: {
+                code: 204
+            }
+        }, status: 204
     rescue ActiveRecord::RecordNotFound
         head 404
 
