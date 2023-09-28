@@ -85,8 +85,13 @@ class PostsController < ApplicationController
 
     #GET /api/users/:user_id/posts
     def user_posts
-        user = User.find(params[:user_id])
-        @posts = user.posts
+        id = params[:user_id]
+        if id.to_i.to_s == id
+            user = User.find(id)
+        else
+            user = User.find_by(username: id)
+        end
+        @posts = user.posts.where(is_deleted: false).order(created_at: :desc)
 
         if @posts.length > 0
             render json: {
