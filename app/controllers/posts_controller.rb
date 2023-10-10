@@ -133,7 +133,7 @@ class PostsController < ApplicationController
 
     #POST /api/communities/:community_id/posts
     def create
-        Rails.logger.info(JSON.parse(request.body.read))
+        # Rails.logger.info(JSON.parse(request.body.read))
         community = Community.find(params[:community_id])
         post = community.posts.build(post_params)
         post.user_id = current_user.id

@@ -9,7 +9,7 @@
 #  created_at             :datetime         not null
 #  updated_at             :datetime         not null
 #  jti                    :string           not null
-#
+#  avatar_key             :string
 
 class User < ApplicationRecord
   include Devise::JWT::RevocationStrategies::JTIMatcher

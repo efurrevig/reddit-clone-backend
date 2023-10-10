@@ -8,7 +8,8 @@
 #  post_type          :integer          default( 0: "message" ), not null
 #  title              :string           not null
 #  body               :text
-#  media_url          :string
+#  url                :string
+#  media_key          :string           
 #  created_at         :datetime         not null
 #  updated_at         :datetime         not null
 #  is_deleted?        :boolean          default(FALSE)
@@ -26,8 +27,7 @@ class Post < ApplicationRecord
 
   enum post_type: [ :message, :media, :url ]
 
-  validates :url, presence: true, if: -> { url? }
-  validates :body, presence: true, if: -> { message? }
+  validate :validate_attributes_based_on_post_type
 
 
 
@@ -355,5 +355,35 @@ class Post < ApplicationRecord
       .first
   end
 
+  private
+
+  def validate_attributes_based_on_post_type
+    case post_type.to_sym
+    when :message
+      validate_presence_of_body
+    when :media
+      validate_presence_of_media_key
+    when :url
+      validate_presence_of_url
+    end
+  end
+
+  def validate_presence_of_body
+    if body.blank?
+      errors.add(:body, "can't be blank")
+    end
+  end
+
+  def validate_presence_of_media_key
+    if media_key.blank?
+      errors.add(:media_key, "can't be blank")
+    end
+  end
+
+  def validate_presence_of_url
+    if url.blank?
+      errors.add(:url, "can't be blank")
+    end
+  end
 
 end
