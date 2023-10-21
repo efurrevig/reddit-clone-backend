@@ -162,6 +162,17 @@ class PostsController < ApplicationController
 
     end
 
+    def hello
+        puts "aws s3 bucket test"
+        # obj = S3_BUCKET.object('birdfwed.jpeg')
+        # url = presigned_url()
+        # puts(obj.exists?)
+        # puts(url)
+    rescue Aws::Errors::ServiceError => e
+        puts e.message
+        # UpdateAvatarJob.perform_async(1, "new_avatar_key", "old_avatar_key")
+    end
+
     #PATCH/PUT /api/communities/:community_id/posts/:id
     def update
         post = Post.find(params[:id])

@@ -53,6 +53,12 @@ class Rack::Attack
         req.ip
       end
     end
+
+    throttle('api/users/url', limit: 5, period: 5.minutes) do |req|
+      if req.path == '/api/users/url' && req.get?
+        req.ip
+      end
+    end
   
     # Throttle POST requests to /login by email param
     #
