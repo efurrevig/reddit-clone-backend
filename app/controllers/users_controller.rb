@@ -23,6 +23,7 @@ class UsersController < ApplicationController
 
     def get_avatar_presigned_url
         url_object = presigned_url(params[:fileType])
+        UpdateAvatarJob.perform_at(10.seconds.from_now, current_user.id, url_object[:key], current_user.avatar_key)
         render json: {
             status: {
                 code: 200

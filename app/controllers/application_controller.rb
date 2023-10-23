@@ -15,7 +15,7 @@ class ApplicationController < ActionController::API
                 :put, 
                 expires_in: 1.minutes.to_i
             )
-        url
+        { url: url, key: key }
 
     rescue Aws::Errors::ServiceError => e
         raise e
