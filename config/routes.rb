@@ -17,7 +17,7 @@ Rails.application.routes.draw do
     #user routes
     get '/users/:user_id/posts', to: 'posts#user_posts'
       #user avatar presigned
-    get '/users/url/:fileType', to: 'users#get_avatar_presigned_url'
+    get '/users/avatar/:fileType', to: 'users#update_avatar'
     resources :communities do
       resources :subscribers
       resources :posts, except: [:show]

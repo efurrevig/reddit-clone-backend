@@ -6,10 +6,10 @@ class UpdateAvatarJob
   def perform(user_id, new_avatar_key, old_avatar_key)
       obj = S3_BUCKET.object(new_avatar_key)
       if obj.exists?
+        User.update(user_id, avatar_key: new_avatar_key)
         if old_avatar_key
           S3_BUCKET.object(old_avatar_key).delete
         end
-        User.update(user_id, avatar_key: new_avatar_key)
       end
   end
 end

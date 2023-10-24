@@ -285,19 +285,20 @@ class Post < ApplicationRecord
   end
 
   def get_post_comments_without_user(sorted_by)
+    select_string = 'comments.*, users.username as author, users.avatar_key as user_avatar_key'
     case sorted_by
     when 'top'
-      return Comment.select('comments.*, users.username as author')
+      return Comment.select(select_string)
         .joins(:user)
         .where(root_id: self.id)
         .order('depth ASC, vote_count DESC')
     when 'new'
-      return Comment.select('comments.*, users.username as author')
+      return Comment.select(select_string)
         .joins(:user)
         .where(root_id: self.id)
         .order('depth ASC, created_at DESC')
     else 
-      return Comment.select('comments.*, users.username as author')
+      return Comment.select(select_string)
         .joins(:user)
         .where(root_id: self.id)
         .order('depth ASC, vote_count DESC')
@@ -305,6 +306,7 @@ class Post < ApplicationRecord
   end
 
   def get_post_comments_with_user(sorted_by, user_id)
+    select_string = 'comments.*, users.username as author, votes.value as vote_value, users.avatar_key as user_avatar_key'
     comments_table = Comment.arel_table
     votes_table = Vote.arel_table
     votes_join = Arel::Nodes::OuterJoin.new(
@@ -317,19 +319,19 @@ class Post < ApplicationRecord
     )
     case sorted_by
     when 'top'
-      return Comment.select('comments.*, users.username as author, votes.value as vote_value')
+      return Comment.select(select_string)
         .joins(:user)
         .joins(votes_join.to_sql)
         .where(root_id: self.id)
         .order('depth ASC, vote_count ASC')
     when 'new'
-      return Comment.select('comments.*, users.username as author, votes.value as vote_value')
+      return Comment.select(select_string)
         .joins(:user)
         .joins(votes_join.to_sql)
         .where(root_id: self.id)
         .order('depth ASC, created_at DESC')
     else 
-      return Comment.select('comments.*, users.username as author, votes.value as vote_value')
+      return Comment.select(select_string)
         .joins(:user)
         .joins(votes_join.to_sql)
         .where(root_id: self.id)
