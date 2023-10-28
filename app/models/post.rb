@@ -235,7 +235,12 @@ class Post < ApplicationRecord
         .limit(10)
         .offset(offset)
     else
-      return Post.order('posts.score DESC').limit(10).offset(offset)
+      return Post.select('posts.*, communities.name as community_name, users.username as author')
+        .joins(:community, :user)
+        .where(is_deleted: false)
+        .order('posts.score DESC')
+        .limit(10)
+        .offset(offset)
     end
   end
 
@@ -282,6 +287,71 @@ class Post < ApplicationRecord
         .limit(20)
         .offset(offset)
     end
+  end
+
+  def self.fetch_all_posts_without_user(sorted_by, page = 1)
+    offset = (page-1)*10
+    case sorted_by
+    when 'hot'
+      return Post.select('posts.*, communities.name as community_name, users.username as author')
+        .joins(:community, :user)
+        .where(is_deleted: false)
+        .order('posts.created_at DESC')
+        .limit(10)
+        .offset(offset)
+    else
+      return Post.select('posts.*, communities.name as community_name, users.username as author')
+        .joins(:community, :user)
+        .where(is_deleted: false)
+        .order('posts.created_at DESC')
+        .limit(10)
+        .offset(offset)
+    end
+  end
+
+  def self.fetch_all_posts_with_user(sorted_by, user_id, page = 1)
+    posts_table = Post.arel_table
+    votes_table = Vote.arel_table
+    subscriber_table = Subscriber.arel_table
+    offset = (page-1)*20
+
+    votes_join = Arel::Nodes::OuterJoin.new(
+      votes_table,
+      Arel::Nodes::On.new(
+        votes_table[:votable_id].eq(posts_table[:id])
+          .and(votes_table[:user_id].eq(user_id))
+          .and(votes_table[:votable_type].eq("Post"))
+      )
+    )
+    
+    subs_join = Arel::Nodes::OuterJoin.new(
+      subscriber_table,
+      Arel::Nodes::On.new(
+        subscriber_table[:community_id].eq(posts_table[:community_id])
+          .and(subscriber_table[:user_id].eq(user_id))
+      )
+    )
+    case sorted_by
+    when 'top'
+      return Post.select('posts.*, votes.value as vote_value, communities.name as community_name, users.username as author, subscribers.status as subscription_status')
+        .joins(votes_join.to_sql)
+        .joins(subs_join.to_sql)
+        .joins(:community, :user)
+        .where(is_deleted: false)
+        .order('posts.created_at DESC')
+        .limit(20)
+        .offset(offset)
+    else
+      return Post.select('posts.*, votes.value as vote_value, communities.name as community_name, users.username as author, subscribers.status as subscription_status')
+        .joins(votes_join.to_sql)
+        .joins(subs_join.to_sql)
+        .joins(:community, :user)
+        .where(is_deleted: false)
+        .order('posts.created_at DESC')
+        .limit(20)
+        .offset(offset)
+    end
+
   end
 
   def get_post_comments_without_user(sorted_by)

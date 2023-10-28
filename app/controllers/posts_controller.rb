@@ -45,7 +45,7 @@ class PostsController < ApplicationController
         when "popular"
             posts = Post.fetch_popular_posts_with_user(sorted_by, current_user.id, page)
         when "all"
-            posts = []
+            posts = Post.fetch_all_posts_with_user(sorted_by, current_user.id, page)
         else
             posts = []
         end
