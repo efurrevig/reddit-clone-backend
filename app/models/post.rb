@@ -289,6 +289,26 @@ class Post < ApplicationRecord
     end
   end
 
+  def self.fetch_popular_posts_without_user(sorted_by, page = 1)
+    offset = (page-1)*10
+    case sorted_by
+    when 'hot'
+      return Post.select('posts.*, communities.name as community_name, users.username as author')
+        .joins(:community, :user)
+        .where(is_deleted: false)
+        .order('posts.score DESC')
+        .limit(20)
+        .offset(offset)
+    else
+      return Post.select('posts.*, communities.name as community_name, users.username as author')
+        .joins(:community, :user)
+        .where(is_deleted: false)
+        .order('posts.score DESC')
+        .limit(20)
+        .offset(offset)
+    end
+  end
+
   def self.fetch_all_posts_without_user(sorted_by, page = 1)
     offset = (page-1)*10
     case sorted_by
@@ -297,14 +317,14 @@ class Post < ApplicationRecord
         .joins(:community, :user)
         .where(is_deleted: false)
         .order('posts.created_at DESC')
-        .limit(10)
+        .limit(20)
         .offset(offset)
     else
       return Post.select('posts.*, communities.name as community_name, users.username as author')
         .joins(:community, :user)
         .where(is_deleted: false)
         .order('posts.created_at DESC')
-        .limit(10)
+        .limit(20)
         .offset(offset)
     end
   end

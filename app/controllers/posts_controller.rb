@@ -43,9 +43,17 @@ class PostsController < ApplicationController
                 posts = Post.fetch_home_posts_without_user(sorted_by, page)
             end
         when "popular"
-            posts = Post.fetch_popular_posts_with_user(sorted_by, current_user.id, page)
+            if current_user != nil
+                posts = Post.fetch_popular_posts_with_user(sorted_by, current_user.id, page)
+            else
+                posts = Post.fetch_popular_posts_without_user(sorted_by, page)
+            end
         when "all"
-            posts = Post.fetch_all_posts_with_user(sorted_by, current_user.id, page)
+            if current_user != nil
+                posts = Post.fetch_all_posts_with_user(sorted_by, current_user.id, page)
+            else
+                posts = Post.fetch_all_posts_without_user(sorted_by, page)
+            end
         else
             posts = []
         end
