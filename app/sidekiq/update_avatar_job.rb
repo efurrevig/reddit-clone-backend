@@ -1,6 +1,5 @@
 class UpdateAvatarJob
   include Sidekiq::Job
-  sidekiq_options retry: false # job will be discarded immediately if failed
   
   # user_id: integer, new_avatar_key: string, old_avatar_key: string
   def perform(user_id, new_avatar_key, old_avatar_key)
